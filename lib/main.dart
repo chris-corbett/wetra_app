@@ -53,17 +53,21 @@ class _MyHomePageState extends State<MyHomePage> {
   static const TextStyle optionStyle = TextStyle(fontSize: 30, fontWeight: FontWeight.bold);
   static const List<Widget> _widgetOptions = <Widget>[
     Text(
-      'Index 0: Home',
+      'Index 0: Schedule',
       style: optionStyle,
     ),
     Text(
-      'Index 1: Business',
+      'Index 1: Chat',
       style: optionStyle,
     ),
     Text(
-      'Index 2: School',
+      'Index 2: Files',
       style: optionStyle,
     ),
+    Text(
+      'Index 3: Settings',
+      style: optionStyle,
+    )
   ];
 
   void _onItemTapped(int index) {
@@ -94,20 +98,28 @@ class _MyHomePageState extends State<MyHomePage> {
       bottomNavigationBar: BottomNavigationBar(
         items: const <BottomNavigationBarItem>[
           BottomNavigationBarItem(
-            icon: Icon(Icons.home),
-            label: 'Home',
+            icon: Icon(Icons.calendar_today),
+            label: 'Schedule',
+            backgroundColor: Colors.red,
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.business),
-            label: 'Business',
+            icon: Icon(Icons.chat),
+            label: 'Chat',
+            backgroundColor: Colors.red,
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.school),
-            label: 'School',
+            icon: Icon(Icons.file_copy),
+            label: 'Files',
+            backgroundColor: Colors.red,
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.settings),
+            label: 'Settings',
+            backgroundColor: Colors.red,
           ),
         ],
         currentIndex: _selectedIndex,
-        selectedItemColor: Colors.amber[800],
+        selectedItemColor: Colors.blue[500],
         onTap: _onItemTapped,
       ),
     );
