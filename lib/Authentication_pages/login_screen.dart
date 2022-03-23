@@ -16,6 +16,46 @@ class _LoginScreenState extends State<LoginScreen> {
   final TextEditingController emailController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
 
+  login() {
+    var loginSuccess = false;
+
+    // Check if test login info matches
+    if (emailController.text == "test" && passwordController.text == "test") {
+      loginSuccess = true;
+    } else {
+      incorrectInfo();
+    }
+
+    // If the user enters the correct credentials they will be logged in and brought to the home screen
+    if (loginSuccess) {
+      Navigator.push(
+          context, MaterialPageRoute(builder: (context) => const HomeScreen()));
+    }
+  }
+
+  Future<String?> incorrectInfo() {
+    return showDialog<String>(
+        context: context,
+        builder: (BuildContext context) => AlertDialog(
+                title: const Text('Incorrect Email or Password'),
+                content: const Text(
+                    'The email or password you have entered is incorrect please try again.'),
+                actions: <Widget>[
+                  TextButton(
+                    onPressed: () => Navigator.pop(context, 'OK'),
+                    child: const Text('OK'),
+                  ),
+                ]));
+  }
+
+  @override
+  void dispose() {
+    // Clean up controllers when the widget is disposed.
+    emailController.dispose();
+    passwordController.dispose();
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
     final emailField = TextFormField(
@@ -57,10 +97,7 @@ class _LoginScreenState extends State<LoginScreen> {
       child: MaterialButton(
         padding: const EdgeInsets.fromLTRB(20, 15, 20, 15),
         minWidth: MediaQuery.of(context).size.width,
-        onPressed: () {
-          Navigator.push(context,
-              MaterialPageRoute(builder: (context) => const HomeScreen()));
-        },
+        onPressed: login,
         child: const Text(
           "Login",
           textAlign: TextAlign.center,
@@ -100,7 +137,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: <Widget>[
-                        const Text("Don't have an account?"),
+                        const Text("Don't have an account? "),
                         GestureDetector(
                           onTap: () {
                             Navigator.push(
@@ -110,7 +147,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                         const RegistrationScreen()));
                           },
                           child: const Text(
-                            "SignUp",
+                            "Sign Up",
                             style: TextStyle(
                                 color: Color.fromRGBO(203, 12, 66, 1),
                                 fontWeight: FontWeight.w900,
