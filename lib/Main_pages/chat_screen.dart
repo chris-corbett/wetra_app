@@ -12,9 +12,9 @@ class _ChatScreenState extends State<ChatScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
         appBar: AppBar(
-      title: const Text("Chat"),
-      centerTitle: true,
-      automaticallyImplyLeading: false,
+        title: const Text("Chat"),
+        centerTitle: true,
+        automaticallyImplyLeading: false,
     ));
   }
 }
