@@ -18,22 +18,13 @@ class _LoginScreenState extends State<LoginScreen> {
   final TextEditingController emailController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
 
-  //FullUser fullUser = null;
-  //bool loginSuccess = false;
-
+  // Checks the users login information when they press the login button.
   login() {
     userLogin(emailController.text, passwordController.text);
-
-    // Check if test login info matches
-
-    // If the user enters the correct credentials they will be logged in and brought to the home screen
-    // if (loginSuccess) {
-    //   Navigator.push(
-    //       context, MaterialPageRoute(builder: (context) => const HomeScreen()));
-    // }
   }
 
-  // Send http post to the api with the users login credentials
+  // Sends http post request to the api to check if the user has entered
+  // their correct login information and allows them to login if the information is correct.
   Future<FullUser> userLogin(String email, String password) async {
     final response = await http.post(
       // API URL
@@ -54,17 +45,21 @@ class _LoginScreenState extends State<LoginScreen> {
     );
 
     if (response.statusCode == 201) {
-      //loginSuccess = true;
+      // If response gives status code 201 then the user exists and the login information is correct.
+      // If that is the case navigate the user to the home screen and return the user object.
       Navigator.push(
           context, MaterialPageRoute(builder: (context) => const HomeScreen()));
       return FullUser.fromJson(jsonDecode(response.body));
     } else {
-      //loginSuccess = false;
+      // If the response gives a status code other than 201 then some login information is incorrect
+      // or an account does not exist for that user. If that is the case display the wrong information popup
+      // and throw an exception so the user cannot login.
       incorrectInfo();
       throw Exception('Failed to login.');
     }
   }
 
+  // Displays popup notification if the user enters incorrect login information.
   Future<String?> incorrectInfo() {
     return showDialog<String>(
         context: context,
@@ -94,7 +89,6 @@ class _LoginScreenState extends State<LoginScreen> {
         autofocus: false,
         controller: emailController,
         keyboardType: TextInputType.emailAddress,
-        //validator: () {},
         onSaved: (value) {
           emailController.text = value!;
         },
@@ -110,7 +104,6 @@ class _LoginScreenState extends State<LoginScreen> {
         autofocus: false,
         controller: passwordController,
         obscureText: true,
-        //validator: () {},
         onSaved: (value) {
           passwordController.text = value!;
         },
