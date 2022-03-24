@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:wetra_app/custom_objects/user.dart';
+import 'package:wetra_app/custom_objects/login_user.dart';
 import '../Main_pages/bottom_nav_bar.dart';
 import 'registration_screen.dart';
 import 'package:http/http.dart' as http;
@@ -25,7 +25,7 @@ class _LoginScreenState extends State<LoginScreen> {
 
   // Sends http post request to the api to check if the user has entered
   // their correct login information and allows them to login if the information is correct.
-  Future<FullUser> userLogin(String email, String password) async {
+  Future<LoginFullUser> userLogin(String email, String password) async {
     final response = await http.post(
       // API URL
       Uri.parse('https://wyibulayin.scweb.ca/wetra/api/login'),
@@ -49,7 +49,7 @@ class _LoginScreenState extends State<LoginScreen> {
       // If that is the case navigate the user to the home screen and return the user object.
       Navigator.push(
           context, MaterialPageRoute(builder: (context) => const HomeScreen()));
-      return FullUser.fromJson(jsonDecode(response.body));
+      return LoginFullUser.fromJson(jsonDecode(response.body));
     } else {
       // If the response gives a status code other than 201 then some login information is incorrect
       // or an account does not exist for that user. If that is the case display the wrong information popup
