@@ -16,6 +16,19 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
   final passwordEditingController = TextEditingController();
   final confirmPasswordEditingController = TextEditingController();
 
+  // Sends http post request with information to create an account
+
+  @override
+  void dispose() {
+    // Clean up controllers when the widget is disposed.
+    firstNameEditingController.dispose();
+    lastNameEditingController.dispose();
+    emailEditingController.dispose();
+    passwordEditingController.dispose();
+    confirmPasswordEditingController.dispose();
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
     final firstNameField = TextFormField(

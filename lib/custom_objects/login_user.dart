@@ -1,16 +1,17 @@
-class FullUser {
-  final User user;
+class LoginFullUser {
+  final LoginUser user;
   final String token;
 
-  const FullUser({required this.user, required this.token});
+  const LoginFullUser({required this.user, required this.token});
 
-  factory FullUser.fromJson(Map<String, dynamic> parsedJson) {
-    return FullUser(
-        user: User.fromJson(parsedJson['user']), token: parsedJson['token']);
+  factory LoginFullUser.fromJson(Map<String, dynamic> parsedJson) {
+    return LoginFullUser(
+        user: LoginUser.fromJson(parsedJson['user']),
+        token: parsedJson['token']);
   }
 }
 
-class User {
+class LoginUser {
   final int id;
   final String firstName;
   final String lastName;
@@ -30,7 +31,7 @@ class User {
   final String? emergencyPhone;
   final String? background;
 
-  const User(
+  const LoginUser(
       {required this.id,
       required this.firstName,
       required this.lastName,
@@ -50,8 +51,8 @@ class User {
       this.emergencyPhone,
       this.background});
 
-  factory User.fromJson(Map<String, dynamic> json) {
-    return User(
+  factory LoginUser.fromJson(Map<String, dynamic> json) {
+    return LoginUser(
         id: json['id'],
         firstName: json['first_name'],
         lastName: json['last_name'],
