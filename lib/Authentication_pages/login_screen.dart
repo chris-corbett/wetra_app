@@ -19,37 +19,22 @@ class _LoginScreenState extends State<LoginScreen> {
   final TextEditingController passwordController = TextEditingController();
 
   //FullUser fullUser = null;
-  bool loginSuccess = false;
+  //bool loginSuccess = false;
 
   login() {
-    //var loginSuccess = false;
-
-    //var loginSuccess;
-
-    //userLogin(emailController.text, passwordController.text).then(loginSuccess);
-    checkLogin();
-
-    print(loginSuccess);
+    userLogin(emailController.text, passwordController.text);
 
     // Check if test login info matches
-    if (!loginSuccess) {
-      incorrectInfo();
-    }
 
     // If the user enters the correct credentials they will be logged in and brought to the home screen
-    if (loginSuccess) {
-      Navigator.push(
-          context, MaterialPageRoute(builder: (context) => const HomeScreen()));
-    }
-  }
-
-  checkLogin() async {
-    loginSuccess =
-        await userLogin(emailController.text, passwordController.text);
+    // if (loginSuccess) {
+    //   Navigator.push(
+    //       context, MaterialPageRoute(builder: (context) => const HomeScreen()));
+    // }
   }
 
   // Send http post to the api with the users login credentials
-  Future<bool> userLogin(String email, String password) async {
+  Future<FullUser> userLogin(String email, String password) async {
     final response = await http.post(
       // API URL
       Uri.parse('https://wyibulayin.scweb.ca/wetra/api/login'),
@@ -69,11 +54,14 @@ class _LoginScreenState extends State<LoginScreen> {
     );
 
     if (response.statusCode == 201) {
-      //return FullUser.fromJson(jsonDecode(response.body));
-      //fullUser = FullUser.fromJson(jsonDecode(response.body));
-      return true;
+      //loginSuccess = true;
+      Navigator.push(
+          context, MaterialPageRoute(builder: (context) => const HomeScreen()));
+      return FullUser.fromJson(jsonDecode(response.body));
     } else {
-      return false;
+      //loginSuccess = false;
+      incorrectInfo();
+      throw Exception('Failed to login.');
     }
   }
 
