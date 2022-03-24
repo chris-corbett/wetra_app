@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
-
+import 'package:wetra_app/custom_objects/user.dart';
 import '../Main_pages/bottom_nav_bar.dart';
 import 'registration_screen.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({Key? key}) : super(key: key);
@@ -16,13 +18,21 @@ class _LoginScreenState extends State<LoginScreen> {
   final TextEditingController emailController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
 
+  //FullUser fullUser = null;
+  bool loginSuccess = false;
+
   login() {
-    var loginSuccess = false;
+    //var loginSuccess = false;
+
+    //var loginSuccess;
+
+    //userLogin(emailController.text, passwordController.text).then(loginSuccess);
+    checkLogin();
+
+    print(loginSuccess);
 
     // Check if test login info matches
-    if (emailController.text == "test" && passwordController.text == "test") {
-      loginSuccess = true;
-    } else {
+    if (!loginSuccess) {
       incorrectInfo();
     }
 
@@ -30,6 +40,40 @@ class _LoginScreenState extends State<LoginScreen> {
     if (loginSuccess) {
       Navigator.push(
           context, MaterialPageRoute(builder: (context) => const HomeScreen()));
+    }
+  }
+
+  checkLogin() async {
+    loginSuccess =
+        await userLogin(emailController.text, passwordController.text);
+  }
+
+  // Send http post to the api with the users login credentials
+  Future<bool> userLogin(String email, String password) async {
+    final response = await http.post(
+      // API URL
+      Uri.parse('https://wyibulayin.scweb.ca/wetra/api/login'),
+      // Headers for the post request
+      headers: <String, String>{
+        'Accept': 'application/json',
+        'Content-Type': 'application/x-www-form-urlencoded',
+        'Cookie': 'XSRF-',
+      },
+      // Encoding for the body
+      encoding: Encoding.getByName('utf-8'),
+      // Body to send in the post request
+      body: {
+        'email': email,
+        'password': password,
+      },
+    );
+
+    if (response.statusCode == 201) {
+      //return FullUser.fromJson(jsonDecode(response.body));
+      //fullUser = FullUser.fromJson(jsonDecode(response.body));
+      return true;
+    } else {
+      return false;
     }
   }
 
