@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:wetra_app/Admin_side_pages/bottom_nav_bar.dart';
+import 'package:wetra_app/Staff_side_pages/bottom_nav_bar.dart';
 import 'package:wetra_app/custom_objects/login_user.dart';
-import '../Main_pages/bottom_nav_bar.dart';
 import 'registration_screen.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
@@ -38,17 +39,16 @@ class _LoginScreenState extends State<LoginScreen> {
       // Encoding for the body
       encoding: Encoding.getByName('utf-8'),
       // Body to send in the post request
-      body: {
-        'email': email,
-        'password': password,
-      },
+      body: {'email': email, 'password': password},
     );
 
     if (response.statusCode == 201) {
       // If response gives status code 201 then the user exists and the login information is correct.
       // If that is the case navigate the user to the home screen and return the user object.
-      Navigator.push(
-          context, MaterialPageRoute(builder: (context) => const HomeScreen()));
+      print(emailController.text);
+
+      Navigator.push(context,
+          MaterialPageRoute(builder: (context) => const AdminHomeScreen()));
       return LoginFullUser.fromJson(jsonDecode(response.body));
     } else {
       // If the response gives a status code other than 201 then some login information is incorrect

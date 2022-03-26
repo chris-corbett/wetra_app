@@ -5,14 +5,14 @@ import 'file_screen.dart';
 import 'schedule_screen.dart';
 import 'setting_screen.dart';
 
-class HomeScreen extends StatefulWidget {
-  const HomeScreen({Key? key}) : super(key: key);
+class StaffHomeScreen extends StatefulWidget {
+  const StaffHomeScreen({Key? key}) : super(key: key);
 
   @override
-  State<HomeScreen> createState() => _HomeScreenState();
+  State<StaffHomeScreen> createState() => _StaffHomeScreenState();
 }
 
-class _HomeScreenState extends State<HomeScreen> {
+class _StaffHomeScreenState extends State<StaffHomeScreen> {
   int selectedIndex = 0;
   static const List<Widget> _widgetOptions = <Widget>[
     ScheduleScreen(),
