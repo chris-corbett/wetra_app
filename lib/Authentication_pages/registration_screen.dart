@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
 
 class RegistrationScreen extends StatefulWidget {
   const RegistrationScreen({Key? key}) : super(key: key);
@@ -15,6 +17,54 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
   final emailEditingController = TextEditingController();
   final passwordEditingController = TextEditingController();
   final confirmPasswordEditingController = TextEditingController();
+
+  // Registers the user when they press the register button.
+  register() {
+    userRegister(
+        firstNameEditingController.text,
+        lastNameEditingController.text,
+        emailEditingController.text,
+        passwordEditingController.text,
+        confirmPasswordEditingController.text);
+  }
+
+  // Sends http post request with information to create an account
+  void userRegister(String firstName, String lastName, String email,
+      String password, String confirmPassword) async {
+    final response = await http.post(
+      // API URL
+      Uri.parse('https://wyibulayin.scweb.ca/wetra/api/register'),
+      // Headers for the post request
+      headers: <String, String>{
+        'Accept': 'application/json',
+        'Content-Type': 'application/x-www-form-urlencoded',
+        'Cookie': 'XSRF-',
+      },
+      // Encoding for the body
+      encoding: Encoding.getByName('utf-8'),
+      // Body to send in the post request
+      body: {
+        'email': email,
+        'password': password,
+        'password_confirmation': confirmPassword,
+        'first_name': firstName,
+        'last_name': lastName,
+      },
+    );
+
+    print(response.statusCode);
+  }
+
+  @override
+  void dispose() {
+    // Clean up controllers when the widget is disposed.
+    firstNameEditingController.dispose();
+    lastNameEditingController.dispose();
+    emailEditingController.dispose();
+    passwordEditingController.dispose();
+    confirmPasswordEditingController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -105,7 +155,7 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
       child: MaterialButton(
         padding: const EdgeInsets.fromLTRB(20, 15, 20, 15),
         minWidth: MediaQuery.of(context).size.width,
-        onPressed: () {},
+        onPressed: register,
         child: const Text(
           "Sign Up",
           textAlign: TextAlign.center,
