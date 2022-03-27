@@ -48,7 +48,7 @@ class _LoginScreenState extends State<LoginScreen> {
       //print(emailController.text);
 
       Navigator.push(context,
-          MaterialPageRoute(builder: (context) => const AdminHomeScreen()));
+          MaterialPageRoute(builder: (context) => const StaffHomeScreen()));
       return LoginFullUser.fromJson(jsonDecode(response.body));
     } else {
       // If the response gives a status code other than 201 then some login information is incorrect

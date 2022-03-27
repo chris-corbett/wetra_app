@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:syncfusion_flutter_calendar/calendar.dart';
 
 class ScheduleScreen extends StatefulWidget {
   const ScheduleScreen({Key? key}) : super(key: key);
@@ -16,8 +17,8 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
         centerTitle: true,
         automaticallyImplyLeading: false,
       ),
-      body: const Center(
-        child: Text('User'),
+      body: Container(
+        child: SfCalendar(),
       ),
     );
   }
