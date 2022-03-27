@@ -19,13 +19,13 @@ class LoginUser {
   final String? emailVerifiedAt;
   final String createdAt;
   final String updatedAt;
-  final String? groupId;
+  final int? groupId;
   final String? imageUrl;
   final String? jobTitle;
   final String? phoneNumber;
   final String? address;
   final String registeredDate;
-  final String? status;
+  final int? status;
   final int isAdmin;
   final String? emergencyName;
   final String? emergencyPhone;

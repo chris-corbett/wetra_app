@@ -45,7 +45,7 @@ class _LoginScreenState extends State<LoginScreen> {
     if (response.statusCode == 201) {
       // If response gives status code 201 then the user exists and the login information is correct.
       // If that is the case navigate the user to the home screen and return the user object.
-      print(emailController.text);
+      //print(emailController.text);
 
       Navigator.push(context,
           MaterialPageRoute(builder: (context) => const AdminHomeScreen()));
