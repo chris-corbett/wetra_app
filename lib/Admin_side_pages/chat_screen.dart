@@ -1,11 +1,11 @@
 import 'dart:convert';
-
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:wetra_app/Admin_side_pages/chat_detail_screen.dart';
 import 'package:http/http.dart' as http;
 import 'package:wetra_app/Admin_side_pages/chat_user_list.dart';
 
-import '../custom_objects/chat_user.dart';
+import 'package:wetra_app/custom_objects/chat_user.dart';
 
 class ChatScreen extends StatefulWidget {
   const ChatScreen({Key? key}) : super(key: key);
@@ -15,18 +15,18 @@ class ChatScreen extends StatefulWidget {
 }
 
 class _ChatScreenState extends State<ChatScreen> {
-  List<ChatUser> chatUsers = [];
+  //List<ChattedUser> chatUsers = [];
 
   @override
   void initState() {
     super.initState();
-    userList();
+    chatList();
   }
 
-  Future<List<ChatUser>> userList() async {
+  Future<List<ChatUser>> chatList() async {
     final response = await http.post(
       // API URL
-      Uri.parse('https://wyibulayin.scweb.ca/wetra/api/users/all'),
+      Uri.parse('https://wyibulayin.scweb.ca/wetra/api/messages/chatted_users'),
       // Headers for the post request
       headers: <String, String>{
         'Accept': 'application/json',
@@ -38,10 +38,12 @@ class _ChatScreenState extends State<ChatScreen> {
 
     if (response.statusCode == 200) {
       List jsonResponse = json.decode(response.body);
-      return jsonResponse.map((data) => ChatUser.fromJson(data)).toList();
+      jsonResponse.map((data) => ChatUser.fromJson(data)).toList();
     } else {
       throw Exception('Failed to load users');
     }
+
+    return chatList();
   }
 
   @override
@@ -69,8 +71,38 @@ class _ChatScreenState extends State<ChatScreen> {
       //     }));
       //   },
       // )
-      body: const Center(
-        child: Text("Click on Add Button"),
+      body: Center(
+        child: FutureBuilder<List<ChatUser>>(
+          builder: (context, snapshot) {
+            if (snapshot.hasData) {
+              List<ChatUser>? data = snapshot.data;
+              return ListView.builder(
+                  itemCount: data?.length,
+                  shrinkWrap: true,
+                  itemBuilder: (BuildContext context, int index) {
+                    return Card(
+                        color: Colors.deepOrange[200],
+                        child: ListTile(
+                          title: Text(data![index].firstName),
+                          leading: const SizedBox(
+                            width: 50,
+                            height: 50,
+                            // child: Image.network(data[index].background),
+                          ),
+                          // onTap: () {
+                          //   Navigator.of(context).push(MaterialPageRoute(
+                          //       builder: (context) => ChatDetailScreen(
+                          //             chat: data[index],
+                          //           )));
+                          // }
+                        ));
+                  });
+            } else if (snapshot.hasError) {
+              return Text("${snapshot.error}");
+            }
+            return const CircularProgressIndicator();
+          },
+        ),
       ),
     );
   }
