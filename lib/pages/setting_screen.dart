@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:wetra_app/custom_objects/user.dart';
 
 class SettingScreen extends StatefulWidget {
   const SettingScreen({Key? key}) : super(key: key);
@@ -12,9 +13,12 @@ class _SettingScreenState extends State<SettingScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
         appBar: AppBar(
-      title: const Text("Users"),
-      centerTitle: true,
-      automaticallyImplyLeading: false,
-    ));
+          title: const Text("Setting"),
+          centerTitle: true,
+          automaticallyImplyLeading: false,
+        ),
+        body: Center(
+          child: Text(User.getUser().user.firstName),
+        ));
   }
 }

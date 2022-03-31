@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:wetra_app/Admin_side_pages/bottom_nav_bar.dart';
-import 'package:wetra_app/Staff_side_pages/bottom_nav_bar.dart';
+import 'package:wetra_app/pages/bottom_nav_bar.dart';
 import 'package:wetra_app/custom_objects/login_user.dart';
+import 'package:wetra_app/custom_objects/user.dart';
 import 'registration_screen.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
@@ -47,8 +47,10 @@ class _LoginScreenState extends State<LoginScreen> {
       // If that is the case navigate the user to the home screen and return the user object.
       //print(emailController.text);
 
-      Navigator.push(context,
-          MaterialPageRoute(builder: (context) => const StaffHomeScreen()));
+      User.setUser(LoginFullUser.fromJson(jsonDecode(response.body)));
+
+      Navigator.push(
+          context, MaterialPageRoute(builder: (context) => const HomeScreen()));
       return LoginFullUser.fromJson(jsonDecode(response.body));
     } else {
       // If the response gives a status code other than 201 then some login information is incorrect
