@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:wetra_app/custom_objects/user.dart';
+import 'package:wetra_app/custom_classes/user.dart';
 
 class SettingScreen extends StatefulWidget {
   const SettingScreen({Key? key}) : super(key: key);

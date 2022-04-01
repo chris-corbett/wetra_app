@@ -2,6 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 
+import 'package:wetra_app/custom_classes/login_register_popup.dart';
+import 'package:wetra_app/custom_classes/register_user.dart';
+
+import 'login_screen.dart';
+
 class RegistrationScreen extends StatefulWidget {
   const RegistrationScreen({Key? key}) : super(key: key);
 
@@ -52,7 +57,25 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
       },
     );
 
-    print(response.statusCode);
+    if (response.statusCode == 201) {
+      Navigator.push(context,
+          MaterialPageRoute(builder: (context) => const LoginScreen()));
+      LoginRegisterPopup.showPopup(
+          context, "Account Successfully Created", "You can now login");
+    } else {
+      RegisterFullError registrationError =
+          RegisterFullError.fromJson(jsonDecode(response.body));
+      String errorTitle =
+          "There was a problem registering your account because of the following error(s)\n";
+      String errorBody = "";
+      if (registrationError.errors.email != null) {
+        errorBody += "* " + registrationError.errors.email?.first + "\n";
+      }
+      if (registrationError.errors.password != null) {
+        errorBody += "* " + registrationError.errors.password?.first + "\n";
+      }
+      LoginRegisterPopup.showPopup(context, errorTitle, errorBody);
+    }
   }
 
   @override

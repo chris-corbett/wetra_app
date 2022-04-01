@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:wetra_app/custom_classes/login_register_popup.dart';
 import 'package:wetra_app/pages/bottom_nav_bar.dart';
-import 'package:wetra_app/custom_objects/login_user.dart';
-import 'package:wetra_app/custom_objects/user.dart';
+import 'package:wetra_app/custom_classes/login_user.dart';
+import 'package:wetra_app/custom_classes/user.dart';
 import 'registration_screen.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
@@ -47,8 +48,9 @@ class _LoginScreenState extends State<LoginScreen> {
       // If that is the case navigate the user to the home screen and return the user object.
       //print(emailController.text);
 
+      print(LoginFullUser.fromJson(jsonDecode(response.body)).user.firstName);
       User.setUser(LoginFullUser.fromJson(jsonDecode(response.body)));
-
+      print(User.getUser().user.firstName);
       Navigator.push(
           context, MaterialPageRoute(builder: (context) => const HomeScreen()));
       return LoginFullUser.fromJson(jsonDecode(response.body));
@@ -56,25 +58,10 @@ class _LoginScreenState extends State<LoginScreen> {
       // If the response gives a status code other than 201 then some login information is incorrect
       // or an account does not exist for that user. If that is the case display the wrong information popup
       // and throw an exception so the user cannot login.
-      incorrectInfo();
+      LoginRegisterPopup.showPopup(context, "Incorrect Email or Password",
+          "The email or password you have entered is incorrect.");
       throw Exception('Failed to login.');
     }
-  }
-
-  // Displays popup notification if the user enters incorrect login information.
-  Future<String?> incorrectInfo() {
-    return showDialog<String>(
-        context: context,
-        builder: (BuildContext context) => AlertDialog(
-                title: const Text('Incorrect Email or Password'),
-                content: const Text(
-                    'The email or password you have entered is incorrect please try again.'),
-                actions: <Widget>[
-                  TextButton(
-                    onPressed: () => Navigator.pop(context, 'OK'),
-                    child: const Text('OK'),
-                  ),
-                ]));
   }
 
   @override
