@@ -27,7 +27,7 @@ class _LoginScreenState extends State<LoginScreen> {
 
   // Sends http post request to the api to check if the user has entered
   // their correct login information and allows them to login if the information is correct.
-  Future<LoginFullUser> userLogin(String email, String password) async {
+  void userLogin(String email, String password) async {
     final response = await http.post(
       // API URL
       Uri.parse('https://wyibulayin.scweb.ca/wetra/api/login'),
@@ -46,21 +46,14 @@ class _LoginScreenState extends State<LoginScreen> {
     if (response.statusCode == 201) {
       // If response gives status code 201 then the user exists and the login information is correct.
       // If that is the case navigate the user to the home screen and return the user object.
-      //print(emailController.text);
-
-      print(LoginFullUser.fromJson(jsonDecode(response.body)).user.firstName);
       User.setUser(LoginFullUser.fromJson(jsonDecode(response.body)));
-      print(User.getUser().user.firstName);
       Navigator.push(
           context, MaterialPageRoute(builder: (context) => const HomeScreen()));
-      return LoginFullUser.fromJson(jsonDecode(response.body));
     } else {
       // If the response gives a status code other than 201 then some login information is incorrect
       // or an account does not exist for that user. If that is the case display the wrong information popup
-      // and throw an exception so the user cannot login.
       LoginRegisterPopup.showPopup(context, "Incorrect Email or Password",
           "The email or password you have entered is incorrect.");
-      throw Exception('Failed to login.');
     }
   }
 
