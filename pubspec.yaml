@@ -30,6 +30,8 @@ dependencies:
   flutter:
     sdk: flutter
 
+  intl: ^0.17.0
+  
   # The following adds the http package to allow the use of http protocols to use the api.
   http: 0.13.4
 

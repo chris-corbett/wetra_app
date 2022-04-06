@@ -1,3 +1,5 @@
+import 'package:flutter/cupertino.dart';
+
 class FullSchedule {
   final List<Schedule> schedules;
 
@@ -23,7 +25,7 @@ class Schedule {
   final int assignedBy;
   final String createdAt;
   final String updatedAt;
-  final String? allDay;
+  final int? allDay;
 
   const Schedule(
       {required this.id,
