@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:wetra_app/custom_classes/custom_color.dart';
 
 import 'chat_screen.dart';
 import 'file_screen.dart';
@@ -35,7 +36,7 @@ class _HomeScreenState extends State<HomeScreen> {
       ),
       bottomNavigationBar: BottomNavigationBar(
         type: BottomNavigationBarType.fixed,
-        backgroundColor: const Color.fromRGBO(203, 12, 66, 1),
+        backgroundColor: MaterialColor(0xFFFF0F53, color),
         selectedItemColor: Colors.white,
         unselectedItemColor: Colors.white70,
         iconSize: 30,

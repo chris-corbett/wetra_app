@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:wetra_app/Authentication_pages/login_screen.dart';
+import 'package:wetra_app/custom_classes/user.dart';
 import 'package:wetra_app/pages/users_screen.dart';
 
 class SettingScreen extends StatefulWidget {
@@ -21,14 +22,17 @@ class _SettingScreenState extends State<SettingScreen> {
         body: Center(
             child: Column(
           children: [
-            ElevatedButton(
-                child: const Text('Users'),
-                onPressed: () {
-                  Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                          builder: (context) => const UsersScreen()));
-                }),
+            Visibility(
+              child: ElevatedButton(
+                  child: const Text('Users'),
+                  onPressed: () {
+                    Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => const UsersScreen()));
+                  }),
+              visible: User.getUser().user.isAdmin == 0 ? false : true,
+            ),
             ElevatedButton(
               child: const Text('Logout'),
               onPressed: () {

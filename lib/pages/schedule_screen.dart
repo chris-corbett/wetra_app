@@ -1,4 +1,6 @@
+import 'dart:collection';
 import 'dart:convert';
+import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:table_calendar/table_calendar.dart';
@@ -22,6 +24,8 @@ getEvents() async {
   events = await getSchedules();
 }
 
+List<Event> scheduleSource = [];
+
 Future<List<Event>> getSchedules() async {
   String token = User.getUser().token;
   final response = await http.get(
@@ -37,7 +41,7 @@ Future<List<Event>> getSchedules() async {
       FullSchedule.fromJson(jsonDecode(response.body)).schedules;
 
   // A list of the events to be added to the calendar.
-  List<Event> scheduleSource = [];
+  //List<Event> scheduleSource = [];
 
   for (int i = 0; i < schedules.length; i++) {
     // Create temporary values to be used in the creation of the schedule source object
@@ -85,6 +89,7 @@ class _ScheduleScreenState extends State<ScheduleScreen>
   DateTime _selectedDay = DateTime.now();
   DateTime _focusedDay = DateTime.now();
   CalendarFormat _calendarFormat = CalendarFormat.month;
+  List<Event> _eventsForDay = [];
 
   @override
   Widget build(BuildContext context) {
@@ -95,31 +100,52 @@ class _ScheduleScreenState extends State<ScheduleScreen>
         automaticallyImplyLeading: false,
       ),
       body: Center(
-        // Calendar
-        child: TableCalendar(
-          firstDay: DateTime.utc(1970, 01, 01),
-          lastDay: DateTime.utc(3000, 01, 01),
-          focusedDay: _focusedDay,
-          calendarFormat: _calendarFormat,
-          selectedDayPredicate: (day) {
-            return isSameDay(_selectedDay, day);
-          },
-          onDaySelected: (selectedDay, focusedDay) {
-            setState(() {
-              _selectedDay = selectedDay;
+          child: Column(
+        children: [
+          TableCalendar(
+            firstDay: DateTime.utc(1970, 01, 01),
+            lastDay: DateTime.utc(3000, 01, 01),
+            focusedDay: _focusedDay,
+            calendarFormat: _calendarFormat,
+            selectedDayPredicate: (day) {
+              return isSameDay(_selectedDay, day);
+            },
+            onDaySelected: (selectedDay, focusedDay) {
+              _eventsForDay = _getEventsForDay(selectedDay);
+              setState(() {
+                _selectedDay = selectedDay;
+                _focusedDay = focusedDay;
+              });
+            },
+            onFormatChanged: (format) {
+              setState(() {
+                _calendarFormat = format;
+              });
+            },
+            onPageChanged: (focusedDay) {
               _focusedDay = focusedDay;
-            });
-          },
-          onFormatChanged: (format) {
-            setState(() {
-              _calendarFormat = format;
-            });
-          },
-          eventLoader: (day) {
-            return _getEventsForDay(day);
-          },
-        ),
-      ),
+            },
+            eventLoader: (day) {
+              return _getEventsForDay(day);
+            },
+          ),
+          Expanded(
+            child: ListView.separated(
+              padding: const EdgeInsets.all(8),
+              itemCount: _eventsForDay.length,
+              itemBuilder: (BuildContext context, int index) {
+                return Container(
+                  height: 50,
+                  color: Colors.blueGrey,
+                  child: Center(child: Text(_eventsForDay[index].eventName)),
+                );
+              },
+              separatorBuilder: (BuildContext context, int index) =>
+                  const Divider(),
+            ),
+          )
+        ],
+      )),
       floatingActionButton: Visibility(
         child: FloatingActionButton(
           onPressed: () {
@@ -137,8 +163,55 @@ class _ScheduleScreenState extends State<ScheduleScreen>
   }
 }
 
-// Class used to add the events to the calendar
-//List<Event>
+// Used to add the events to the calendar
+List<Event> _getEventsForDay(DateTime day) {
+  var events = test();
+  return events[day] ?? [];
+}
+
+Map<DateTime, List<Event>> kEventSource = {};
+
+LinkedHashMap<DateTime, List<Event>> test() {
+  for (var element in (scheduleSource)) {
+    kEventSource[DateTime(
+      element.from.year,
+      element.from.month,
+      element.from.day,
+    )] = kEventSource[DateTime(
+              element.from.year,
+              element.from.month,
+              element.from.day,
+            )] !=
+            null
+        ? [
+            ...?kEventSource[DateTime(
+              element.from.year,
+              element.from.month,
+              element.from.day,
+            )],
+          ]
+        : [element];
+  }
+
+  final kEvents = LinkedHashMap<DateTime, List<Event>>(
+    equals: isSameDay,
+    hashCode: getHashCode,
+  )..addAll(kEventSource);
+
+  return kEvents;
+}
+
+bool isSameDay(DateTime? a, DateTime? b) {
+  if (a == null || b == null) {
+    return false;
+  }
+
+  return a.year == b.year && a.month == b.month && a.day == b.day;
+}
+
+int getHashCode(DateTime key) {
+  return key.day * 1000000 + key.month * 10000 + key.year;
+}
 
 // Event class to represent the data in the calendar
 class Event {
