@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:wetra_app/custom_classes/user.dart';
+import 'package:wetra_app/Authentication_pages/login_screen.dart';
+import 'package:wetra_app/pages/users_screen.dart';
 
 class SettingScreen extends StatefulWidget {
   const SettingScreen({Key? key}) : super(key: key);
@@ -13,12 +14,31 @@ class _SettingScreenState extends State<SettingScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
         appBar: AppBar(
-          title: const Text("Setting"),
+          title: const Text("Settings"),
           centerTitle: true,
           automaticallyImplyLeading: false,
         ),
         body: Center(
-          child: Text(User.getUser().user.firstName),
-        ));
+            child: Column(
+          children: [
+            ElevatedButton(
+                child: const Text('Users'),
+                onPressed: () {
+                  Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) => const UsersScreen()));
+                }),
+            ElevatedButton(
+              child: const Text('Logout'),
+              onPressed: () {
+                Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) => const LoginScreen()));
+              },
+            ),
+          ],
+        )));
   }
 }

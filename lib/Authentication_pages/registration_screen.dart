@@ -5,8 +5,6 @@ import 'dart:convert';
 import 'package:wetra_app/custom_classes/login_register_popup.dart';
 import 'package:wetra_app/custom_classes/register_user.dart';
 
-import 'login_screen.dart';
-
 class RegistrationScreen extends StatefulWidget {
   const RegistrationScreen({Key? key}) : super(key: key);
 
@@ -58,8 +56,7 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
     );
 
     if (response.statusCode == 201) {
-      Navigator.push(context,
-          MaterialPageRoute(builder: (context) => const LoginScreen()));
+      Navigator.of(context).pop();
       LoginRegisterPopup.showPopup(
           context, "Account Successfully Created", "You can now login");
     } else {

@@ -1,5 +1,3 @@
-import 'package:flutter/cupertino.dart';
-
 class FullSchedule {
   final List<Schedule> schedules;
 
@@ -15,28 +13,36 @@ class FullSchedule {
 
 class Schedule {
   final int id;
+  final String? scheduleType;
   final String title;
   final String start;
   final String end;
   final String color;
   final String textColor;
-  final String description;
+  final String? description;
   final int assignedTo;
   final int assignedBy;
+  final int? isCompleted;
+  final int? requestTimeOffId;
+  final int? confirmTimeOffId;
   final String createdAt;
   final String updatedAt;
   final int? allDay;
 
   const Schedule(
       {required this.id,
+      this.scheduleType,
       required this.title,
       required this.start,
       required this.end,
       required this.color,
       required this.textColor,
-      required this.description,
+      this.description,
       required this.assignedTo,
       required this.assignedBy,
+      this.isCompleted,
+      this.requestTimeOffId,
+      this.confirmTimeOffId,
       required this.createdAt,
       required this.updatedAt,
       this.allDay});
@@ -44,6 +50,7 @@ class Schedule {
   factory Schedule.fromJson(Map<String, dynamic> json) {
     return Schedule(
         id: json['id'],
+        scheduleType: json['scheduleType'],
         title: json['title'],
         start: json['start'],
         end: json['end'],
@@ -52,6 +59,9 @@ class Schedule {
         description: json['description'],
         assignedTo: json['assigned_to'],
         assignedBy: json['assigned_by'],
+        isCompleted: json['is_completed'],
+        requestTimeOffId: json['request_time_off_id'],
+        confirmTimeOffId: json['confirm_time_off_id'],
         createdAt: json['created_at'],
         updatedAt: json['updated_at'],
         allDay: json['allDay']);

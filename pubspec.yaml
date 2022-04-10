@@ -35,8 +35,8 @@ dependencies:
   # The following adds the http package to allow the use of http protocols to use the api.
   http: 0.13.4
 
-  # The following adds the syncfusion flutter calendar.
-  syncfusion_flutter_calendar: ^19.4.56
+  # The following adds the table calendar.
+  table_calendar: ^3.0.5
 
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.

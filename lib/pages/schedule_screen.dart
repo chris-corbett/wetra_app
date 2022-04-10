@@ -1,10 +1,11 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'package:syncfusion_flutter_calendar/calendar.dart';
+import 'package:table_calendar/table_calendar.dart';
 import 'package:wetra_app/custom_classes/schedule.dart';
 import 'package:wetra_app/custom_classes/user.dart';
 import 'package:http/http.dart' as http;
+import 'package:wetra_app/pages/create_event_screen.dart';
 
 class ScheduleScreen extends StatefulWidget {
   const ScheduleScreen({Key? key}) : super(key: key);
@@ -53,8 +54,8 @@ Future<List<Event>> getSchedules() async {
     Color tempColor = Color(int.parse(hexColor));
 
     // Creates new event object and adds it to the schedule source list
-    scheduleSource.add(Event(schedules[i].title, tempStart, tempEnd, tempColor,
-        schedules[i].allDay == 0 ? false : true));
+    scheduleSource.add(Event(schedules[i].id, schedules[i].title, tempStart,
+        tempEnd, tempColor, schedules[i].allDay == 0 ? false : true));
   }
 
   return scheduleSource;
@@ -80,6 +81,11 @@ class _ScheduleScreenState extends State<ScheduleScreen>
     }
   }
 
+  // Properties for the calendar
+  DateTime _selectedDay = DateTime.now();
+  DateTime _focusedDay = DateTime.now();
+  CalendarFormat _calendarFormat = CalendarFormat.month;
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -90,14 +96,38 @@ class _ScheduleScreenState extends State<ScheduleScreen>
       ),
       body: Center(
         // Calendar
-        child: SfCalendar(
-          view: CalendarView.month,
-          dataSource: ScheduleDataSource(events),
+        child: TableCalendar(
+          firstDay: DateTime.utc(1970, 01, 01),
+          lastDay: DateTime.utc(3000, 01, 01),
+          focusedDay: _focusedDay,
+          calendarFormat: _calendarFormat,
+          selectedDayPredicate: (day) {
+            return isSameDay(_selectedDay, day);
+          },
+          onDaySelected: (selectedDay, focusedDay) {
+            setState(() {
+              _selectedDay = selectedDay;
+              _focusedDay = focusedDay;
+            });
+          },
+          onFormatChanged: (format) {
+            setState(() {
+              _calendarFormat = format;
+            });
+          },
+          eventLoader: (day) {
+            return _getEventsForDay(day);
+          },
         ),
       ),
       floatingActionButton: Visibility(
         child: FloatingActionButton(
-          onPressed: () {},
+          onPressed: () {
+            Navigator.push(
+                context,
+                MaterialPageRoute(
+                    builder: (context) => const CreateEventScreen()));
+          },
           child: const Icon(Icons.add),
         ),
         // Only show the FAB if the user is an admin.
@@ -108,44 +138,17 @@ class _ScheduleScreenState extends State<ScheduleScreen>
 }
 
 // Class used to add the events to the calendar
-class ScheduleDataSource extends CalendarDataSource {
-  ScheduleDataSource(List<Event> source) {
-    appointments = source;
-  }
-
-  @override
-  DateTime getStartTime(int index) {
-    return appointments![index].from;
-  }
-
-  @override
-  DateTime getEndTime(int index) {
-    return appointments![index].to;
-  }
-
-  @override
-  String getSubject(int index) {
-    return appointments![index].eventName;
-  }
-
-  @override
-  Color getColor(int index) {
-    return appointments![index].background;
-  }
-
-  @override
-  bool isAllDay(int index) {
-    return appointments![index].isAllDay;
-  }
-}
+//List<Event>
 
 // Event class to represent the data in the calendar
 class Event {
+  int id;
   String eventName;
   DateTime from;
   DateTime to;
   Color background;
   bool isAllDay;
 
-  Event(this.eventName, this.from, this.to, this.background, this.isAllDay);
+  Event(this.id, this.eventName, this.from, this.to, this.background,
+      this.isAllDay);
 }
