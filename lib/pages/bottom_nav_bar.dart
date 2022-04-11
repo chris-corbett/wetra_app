@@ -1,18 +1,19 @@
 import 'package:flutter/material.dart';
+import 'package:wetra_app/custom_classes/custom_color.dart';
 
 import 'chat_screen.dart';
 import 'file_screen.dart';
 import 'schedule_screen.dart';
 import 'setting_screen.dart';
 
-class StaffHomeScreen extends StatefulWidget {
-  const StaffHomeScreen({Key? key}) : super(key: key);
+class HomeScreen extends StatefulWidget {
+  const HomeScreen({Key? key}) : super(key: key);
 
   @override
-  State<StaffHomeScreen> createState() => _StaffHomeScreenState();
+  State<HomeScreen> createState() => _HomeScreenState();
 }
 
-class _StaffHomeScreenState extends State<StaffHomeScreen> {
+class _HomeScreenState extends State<HomeScreen> {
   int selectedIndex = 0;
   static const List<Widget> _widgetOptions = <Widget>[
     ScheduleScreen(),
@@ -35,7 +36,7 @@ class _StaffHomeScreenState extends State<StaffHomeScreen> {
       ),
       bottomNavigationBar: BottomNavigationBar(
         type: BottomNavigationBarType.fixed,
-        backgroundColor: const Color.fromRGBO(203, 12, 66, 1),
+        backgroundColor: MaterialColor(0xFFFF0F53, color),
         selectedItemColor: Colors.white,
         unselectedItemColor: Colors.white70,
         iconSize: 30,

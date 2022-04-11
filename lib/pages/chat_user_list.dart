@@ -1,32 +1,30 @@
-import 'dart:convert';
-import 'dart:async';
 import 'package:flutter/material.dart';
-import 'package:wetra_app/Admin_side_pages/chat_detail_screen.dart';
 import 'package:http/http.dart' as http;
-import 'package:wetra_app/Admin_side_pages/chat_user_list.dart';
+import 'dart:convert';
 
-import '../custom_objects/chat_detail.dart';
-import '../custom_objects/chat_user.dart';
+import '../custom_classes/chat_user.dart';
+import 'chat_detail_screen.dart';
 
-class ChatScreen extends StatefulWidget {
-  const ChatScreen({Key? key}) : super(key: key);
+class ChatUserList extends StatefulWidget {
+  const ChatUserList({Key? key}) : super(key: key);
 
   @override
-  State<ChatScreen> createState() => _ChatScreenState();
+  State<ChatUserList> createState() => _ChatUserListState();
 }
 
-class _ChatScreenState extends State<ChatScreen> {
-  List<ChatUser> chatUsers = [];
+class _ChatUserListState extends State<ChatUserList> {
+  //List<ChatUser> chatUsers = [];
+
   @override
   void initState() {
     super.initState();
-    chatList();
+    userList();
   }
 
-  Future<List<ChatUser>> chatList() async {
+  Future<List<ChatUser>> userList() async {
     final response = await http.post(
       // API URL
-      Uri.parse('https://wyibulayin.scweb.ca/wetra/api/messages/chatted_users'),
+      Uri.parse('https://wyibulayin.scweb.ca/wetra/api/users/all'),
       // Headers for the post request
       headers: <String, String>{
         'Accept': 'application/json',
@@ -37,20 +35,8 @@ class _ChatScreenState extends State<ChatScreen> {
     );
 
     if (response.statusCode == 200) {
-      Map<String, dynamic> data =
-          Map<String, dynamic>.from(json.decode(response.body));
-      if (data.isNotEmpty) {
-        for (int i = 0; i < data.length; i++) {
-          if (data['$i'] != null) {
-            Map<String, dynamic> map = data['$i'];
-            //print(ChatUser.fromJson(map).firstName);
-            chatUsers.add(ChatUser.fromJson(map));
-          }
-        }
-      }
-
-      // print(data.length);
-      return chatUsers;
+      List jsonResponse = json.decode(response.body);
+      return jsonResponse.map((data) => ChatUser.fromJson(data)).toList();
     } else {
       throw Exception('Failed to load users');
     }
@@ -58,26 +44,24 @@ class _ChatScreenState extends State<ChatScreen> {
 
   @override
   Widget build(BuildContext context) {
-    // ChattedUser info = ChattedUser.fromJson(data);
     return Scaffold(
       appBar: AppBar(
-        title: const Text("Chat"),
+        leading: IconButton(
+            onPressed: () {
+              Navigator.pop(context);
+            },
+            icon: const Icon(Icons.arrow_back)),
+        title: const Text("New Chat"),
         centerTitle: true,
         automaticallyImplyLeading: false,
         actions: <Widget>[
           IconButton(
-            icon: const Icon(Icons.add_circle, size: 30.0),
-            onPressed: () {
-              Navigator.push(context, MaterialPageRoute(builder: (context) {
-                return const ChatUserList();
-              }));
-            },
-          ),
+              icon: const Icon(Icons.add_circle, size: 30.0), onPressed: () {}),
         ],
       ),
       body: Center(
         child: FutureBuilder<List<ChatUser>>(
-          future: chatList(),
+          future: userList(),
           builder: (context, snapshot) {
             if (snapshot.hasData) {
               List<ChatUser>? data = snapshot.data;
@@ -86,7 +70,7 @@ class _ChatScreenState extends State<ChatScreen> {
                   shrinkWrap: true,
                   itemBuilder: (BuildContext context, int index) {
                     return Card(
-                        color: Color.fromRGBO(255, 171, 145, 1),
+                        color: Colors.deepOrange[200],
                         child: ListTile(
                             title: Text(data![index].firstName),
                             leading: const SizedBox(

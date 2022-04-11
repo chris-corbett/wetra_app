@@ -3,15 +3,16 @@ import 'package:flutter/material.dart';
 class ConversationList extends StatefulWidget {
   // const ConversationList({ Key? key }) : super(key: key);
 
-  String first_name;
-  String last_name;
+  final String firstName;
+  final String lastName;
   //String background;
 
-  ConversationList({
-    required this.first_name,
-    required this.last_name,
+  const ConversationList({
+    Key? key,
+    required this.firstName,
+    required this.lastName,
     // required this.background,
-  });
+  }) : super(key: key);
 
   @override
   State<ConversationList> createState() => _ConversationListState();
@@ -41,7 +42,7 @@ class _ConversationListState extends State<ConversationList> {
                       color: Colors.deepOrange[300],
                       child: RichText(
                           text: TextSpan(
-                              text: widget.first_name,
+                              text: widget.firstName,
                               style: const TextStyle(
                                 color: Color.fromRGBO(203, 12, 66, 1),
                                 fontSize: 22,
@@ -51,7 +52,7 @@ class _ConversationListState extends State<ConversationList> {
                               text: ' ',
                             ),
                             TextSpan(
-                                text: widget.last_name,
+                                text: widget.lastName,
                                 style: const TextStyle(
                                     color: Color.fromRGBO(203, 12, 66, 1),
                                     fontSize: 22))

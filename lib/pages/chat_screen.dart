@@ -1,42 +1,56 @@
-import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
 import 'dart:convert';
+import 'dart:async';
+import 'package:flutter/material.dart';
+import 'package:wetra_app/custom_classes/user.dart';
+import 'package:wetra_app/pages/chat_detail_screen.dart';
+import 'package:http/http.dart' as http;
+import 'package:wetra_app/pages/chat_user_list.dart';
+import '../custom_classes/chat_user.dart';
 
-import '../custom_objects/chat_user.dart';
-import 'chat_detail_screen.dart';
-
-class ChatUserList extends StatefulWidget {
-  const ChatUserList({Key? key}) : super(key: key);
+class ChatScreen extends StatefulWidget {
+  const ChatScreen({Key? key}) : super(key: key);
 
   @override
-  State<ChatUserList> createState() => _ChatUserListState();
+  State<ChatScreen> createState() => _ChatScreenState();
 }
 
-class _ChatUserListState extends State<ChatUserList> {
-  //List<ChatUser> chatUsers = [];
-
+class _ChatScreenState extends State<ChatScreen> {
+  List<ChatUser> chatUsers = [];
   @override
   void initState() {
     super.initState();
-    userList();
+    chatList();
   }
 
-  Future<List<ChatUser>> userList() async {
+  Future<List<ChatUser>> chatList() async {
+    String token = User.getUser().token;
     final response = await http.post(
       // API URL
-      Uri.parse('https://wyibulayin.scweb.ca/wetra/api/users/all'),
+      Uri.parse('https://wyibulayin.scweb.ca/wetra/api/messages/chatted_users'),
       // Headers for the post request
       headers: <String, String>{
         'Accept': 'application/json',
-        'Authorization': 'Bearer 9|vsEedaNOZSDfOTC75uh44FqjR5I1ygvqnfCvcjPK',
+        'Authorization': 'Bearer $token',
       },
       // Encoding for the body
       encoding: Encoding.getByName('utf-8'),
     );
 
     if (response.statusCode == 200) {
-      List jsonResponse = json.decode(response.body);
-      return jsonResponse.map((data) => ChatUser.fromJson(data)).toList();
+      Map<String, dynamic> data =
+          Map<String, dynamic>.from(json.decode(response.body));
+      if (data.isNotEmpty) {
+        for (int i = 0; i < data.length; i++) {
+          if (data['$i'] != null) {
+            Map<String, dynamic> map = data['$i'];
+            //print(ChatUser.fromJson(map).firstName);
+            chatUsers.add(ChatUser.fromJson(map));
+          }
+        }
+      }
+
+      // print(data.length);
+      return chatUsers;
     } else {
       throw Exception('Failed to load users');
     }
@@ -44,24 +58,26 @@ class _ChatUserListState extends State<ChatUserList> {
 
   @override
   Widget build(BuildContext context) {
+    // ChattedUser info = ChattedUser.fromJson(data);
     return Scaffold(
       appBar: AppBar(
-        leading: IconButton(
-            onPressed: () {
-              Navigator.pop(context);
-            },
-            icon: const Icon(Icons.arrow_back)),
-        title: const Text("New Chat"),
+        title: const Text("Chat"),
         centerTitle: true,
         automaticallyImplyLeading: false,
         actions: <Widget>[
           IconButton(
-              icon: const Icon(Icons.add_circle, size: 30.0), onPressed: () {}),
+            icon: const Icon(Icons.add_circle, size: 30.0),
+            onPressed: () {
+              Navigator.push(context, MaterialPageRoute(builder: (context) {
+                return const ChatUserList();
+              }));
+            },
+          ),
         ],
       ),
       body: Center(
         child: FutureBuilder<List<ChatUser>>(
-          future: userList(),
+          future: chatList(),
           builder: (context, snapshot) {
             if (snapshot.hasData) {
               List<ChatUser>? data = snapshot.data;
@@ -70,7 +86,7 @@ class _ChatUserListState extends State<ChatUserList> {
                   shrinkWrap: true,
                   itemBuilder: (BuildContext context, int index) {
                     return Card(
-                        color: Colors.deepOrange[200],
+                        color: const Color.fromRGBO(255, 171, 145, 1),
                         child: ListTile(
                             title: Text(data![index].firstName),
                             leading: const SizedBox(

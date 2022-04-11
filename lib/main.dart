@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import 'Authentication_pages/login_screen.dart';
+import 'custom_classes/custom_color.dart';
 
 void main() {
   runApp(const MyApp());
@@ -24,7 +25,7 @@ class MyApp extends StatelessWidget {
         // or simply save your changes to "hot reload" in a Flutter IDE).
         // Notice that the counter didn't reset back to zero; the application
         // is not restarted.
-        primarySwatch: Colors.deepOrange,
+        primarySwatch: MaterialColor(0xFFFF0F53, color),
       ),
       home: const LoginScreen(),
     );

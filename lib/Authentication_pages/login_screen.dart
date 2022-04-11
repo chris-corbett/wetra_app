@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:wetra_app/Admin_side_pages/bottom_nav_bar.dart';
-import 'package:wetra_app/Staff_side_pages/bottom_nav_bar.dart';
-import 'package:wetra_app/custom_objects/login_user.dart';
+import 'package:wetra_app/custom_classes/login_register_popup.dart';
+import 'package:wetra_app/pages/bottom_nav_bar.dart';
+import 'package:wetra_app/custom_classes/login_user.dart';
+import 'package:wetra_app/custom_classes/user.dart';
 import 'registration_screen.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
@@ -37,7 +38,7 @@ class _LoginScreenState extends State<LoginScreen> {
 
   // Sends http post request to the api to check if the user has entered
   // their correct login information and allows them to login if the information is correct.
-  Future<LoginFullUser> userLogin(String email, String password) async {
+  void userLogin(String email, String password) async {
     final response = await http.post(
       // API URL
       Uri.parse('https://wyibulayin.scweb.ca/wetra/api/login'),
@@ -63,39 +64,16 @@ class _LoginScreenState extends State<LoginScreen> {
       userName =
           LoginFullUser.fromJson(jsonDecode(response.body)).user.firstName;
       print("User ID is: $userName");
-      if (LoginFullUser.fromJson(jsonDecode(response.body)).user.isAdmin == 1) {
-        print("Admin");
-        Navigator.push(context,
-            MaterialPageRoute(builder: (context) => const AdminHomeScreen()));
-      } else {
-        print("Staff");
-        Navigator.push(context,
-            MaterialPageRoute(builder: (context) => const StaffHomeScreen()));
-      }
-      return LoginFullUser.fromJson(jsonDecode(response.body));
+
+      User.setUser(LoginFullUser.fromJson(jsonDecode(response.body)));
+      Navigator.push(
+          context, MaterialPageRoute(builder: (context) => const HomeScreen()));
     } else {
       // If the response gives a status code other than 201 then some login information is incorrect
       // or an account does not exist for that user. If that is the case display the wrong information popup
-      // and throw an exception so the user cannot login.
-      incorrectInfo();
-      throw Exception('Failed to login.');
+      LoginRegisterPopup.showPopup(context, "Incorrect Email or Password",
+          "The email or password you have entered is incorrect.");
     }
-  }
-
-  // Displays popup notification if the user enters incorrect login information.
-  Future<String?> incorrectInfo() {
-    return showDialog<String>(
-        context: context,
-        builder: (BuildContext context) => AlertDialog(
-                title: const Text('Incorrect Email or Password'),
-                content: const Text(
-                    'The email or password you have entered is incorrect please try again.'),
-                actions: <Widget>[
-                  TextButton(
-                    onPressed: () => Navigator.pop(context, 'OK'),
-                    child: const Text('OK'),
-                  ),
-                ]));
   }
 
   @override
