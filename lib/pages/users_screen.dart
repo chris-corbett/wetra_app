@@ -60,7 +60,9 @@ class _UsersScreenState extends State<UsersScreen> {
                           height: 50,
                           color: Colors.white,
                           child: Center(
-                            child: Text(snapshot.data![index].firstName),
+                            child: Text(snapshot.data![index].firstName +
+                                ' ' +
+                                snapshot.data![index].lastName),
                           ),
                         );
                       },

@@ -106,83 +106,70 @@ class _ScheduleScreenState extends State<ScheduleScreen>
         title: const Text("Schedule"),
         centerTitle: true,
         automaticallyImplyLeading: false,
+        actions: <Widget>[
+          Visibility(
+            visible: isAdmin,
+            child: IconButton(
+              icon: const Icon(Icons.add_circle, size: 30.0),
+              onPressed: () {
+                Navigator.push(context, MaterialPageRoute(builder: (context) {
+                  return const CreateEventScreen();
+                }));
+              },
+            ),
+          )
+        ],
       ),
-      body: FutureBuilder(
-        future: getSchedules(),
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return const Center(child: Text('Loading Schedule'));
-          } else {
-            if (snapshot.hasError) {
-              return const Center(child: Text('Error loading schedule'));
-            } else {
-              return Center(
-                  child: Column(
-                children: [
-                  TableCalendar(
-                    firstDay: DateTime.utc(1970, 01, 01),
-                    lastDay: DateTime.utc(3000, 01, 01),
-                    focusedDay: _focusedDay,
-                    calendarFormat: _calendarFormat,
-                    selectedDayPredicate: (day) {
-                      return isSameDay(_selectedDay, day);
-                    },
-                    onDaySelected: (selectedDay, focusedDay) {
-                      _eventsForDay = _getEventsForDay(selectedDay);
-                      setState(() {
-                        _selectedDay = selectedDay;
-                        _focusedDay = focusedDay;
-                      });
-                    },
-                    onFormatChanged: (format) {
-                      setState(() {
-                        _calendarFormat = format;
-                      });
-                    },
-                    onPageChanged: (focusedDay) {
-                      _focusedDay = focusedDay;
-                    },
-                    eventLoader: (day) {
-                      return _getEventsForDay(day);
-                    },
-                  ),
-                  Expanded(
-                    child: ListView.separated(
-                      padding: const EdgeInsets.all(8),
-                      itemCount: _eventsForDay.length,
-                      itemBuilder: (BuildContext context, int index) {
-                        return Container(
-                          height: 50,
-                          color: _eventsForDay[index].background,
-                          child: Center(
-                              child: Text(_eventsForDay[index].eventName,
-                                  style: TextStyle(
-                                      color: _eventsForDay[index].textColor))),
-                        );
-                      },
-                      separatorBuilder: (BuildContext context, int index) =>
-                          const Divider(),
-                    ),
-                  )
-                ],
-              ));
-            }
-          }
-        },
-      ),
-      floatingActionButton: Visibility(
-        child: FloatingActionButton(
-          onPressed: () {
-            Navigator.push(
-                context,
-                MaterialPageRoute(
-                    builder: (context) => const CreateEventScreen()));
-          },
-          child: const Icon(Icons.add),
-        ),
-        // Only show the FAB if the user is an admin.
-        visible: isAdmin ? true : false,
-      ),
+      body: Center(
+          child: Column(
+        children: [
+          TableCalendar(
+            firstDay: DateTime.utc(1970, 01, 01),
+            lastDay: DateTime.utc(3000, 01, 01),
+            focusedDay: _focusedDay,
+            calendarFormat: _calendarFormat,
+            selectedDayPredicate: (day) {
+              return isSameDay(_selectedDay, day);
+            },
+            onDaySelected: (selectedDay, focusedDay) {
+              _eventsForDay = _getEventsForDay(selectedDay);
+              setState(() {
+                _selectedDay = selectedDay;
+                _focusedDay = focusedDay;
+              });
+            },
+            onFormatChanged: (format) {
+              setState(() {
+                _calendarFormat = format;
+              });
+            },
+            onPageChanged: (focusedDay) {
+              _focusedDay = focusedDay;
+            },
+            eventLoader: (day) {
+              return _getEventsForDay(day);
+            },
+          ),
+          Expanded(
+            child: ListView.separated(
+              padding: const EdgeInsets.all(8),
+              itemCount: _eventsForDay.length,
+              itemBuilder: (BuildContext context, int index) {
+                return Container(
+                  height: 50,
+                  color: _eventsForDay[index].background,
+                  child: Center(
+                      child: Text(_eventsForDay[index].eventName,
+                          style: TextStyle(
+                              color: _eventsForDay[index].textColor))),
+                );
+              },
+              separatorBuilder: (BuildContext context, int index) =>
+                  const Divider(),
+            ),
+          )
+        ],
+      )),
     );
   }
 }
@@ -193,9 +180,9 @@ List<Event> _getEventsForDay(DateTime day) {
   return events[day] ?? [];
 }
 
-Map<DateTime, List<Event>> kEventSource = {};
-
 LinkedHashMap<DateTime, List<Event>> test() {
+  Map<DateTime, List<Event>> kEventSource = {};
+
   for (var element in (scheduleSource)) {
     kEventSource[DateTime(
       element.from.year,
@@ -223,14 +210,6 @@ LinkedHashMap<DateTime, List<Event>> test() {
   )..addAll(kEventSource);
 
   return kEvents;
-}
-
-bool isSameDay(DateTime? a, DateTime? b) {
-  if (a == null || b == null) {
-    return false;
-  }
-
-  return a.year == b.year && a.month == b.month && a.day == b.day;
 }
 
 int getHashCode(DateTime key) {
