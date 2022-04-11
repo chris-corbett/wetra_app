@@ -5,6 +5,7 @@ import 'package:wetra_app/custom_classes/uploaded_file.dart';
 import 'package:wetra_app/custom_classes/user.dart';
 import 'package:http/http.dart' as http;
 import 'package:wetra_app/pages/upload_file_screen.dart';
+import 'package:wetra_app/pages/view_file_screen.dart';
 
 class FileScreen extends StatefulWidget {
   const FileScreen({Key? key}) : super(key: key);
@@ -24,7 +25,6 @@ Future<List<UploadedFile>> getFiles() async {
   );
 
   List<UploadedFile> files = FullFile.fromJson(jsonDecode(response.body)).files;
-  print(files.length);
   return files;
 }
 
@@ -63,17 +63,28 @@ class _FileScreenState extends State<FileScreen> {
               } else {
                 return Center(
                   child: ListView.separated(
-                      itemBuilder: (BuildContext context, int index) {
-                        return Container(
+                    itemBuilder: (BuildContext context, int index) {
+                      return InkWell(
+                        onTap: () {
+                          Navigator.push(context,
+                              MaterialPageRoute(builder: (context) {
+                            return ViewFileScreen(
+                              file: snapshot.data![index],
+                            );
+                          }));
+                        },
+                        child: Container(
                             height: 50,
                             color: Colors.white,
                             child: Center(
                               child: Text(snapshot.data![index].fileName),
-                            ));
-                      },
-                      separatorBuilder: (BuildContext context, int index) =>
-                          const Divider(),
-                      itemCount: snapshot.data!.length),
+                            )),
+                      );
+                    },
+                    separatorBuilder: (BuildContext context, int index) =>
+                        const Divider(),
+                    itemCount: snapshot.data!.length,
+                  ),
                 );
               }
             }
