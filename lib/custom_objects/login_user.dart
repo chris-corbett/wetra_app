@@ -26,7 +26,7 @@ class LoginUser {
   final String? address;
   final String registeredDate;
   final int? status;
-  final int isAdmin;
+  final int? isAdmin;
   final String? emergencyName;
   final String? emergencyPhone;
   final String? background;

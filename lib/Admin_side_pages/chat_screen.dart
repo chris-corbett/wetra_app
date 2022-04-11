@@ -5,7 +5,8 @@ import 'package:wetra_app/Admin_side_pages/chat_detail_screen.dart';
 import 'package:http/http.dart' as http;
 import 'package:wetra_app/Admin_side_pages/chat_user_list.dart';
 
-import 'package:wetra_app/custom_objects/chat_user.dart';
+import '../custom_objects/chat_detail.dart';
+import '../custom_objects/chat_user.dart';
 
 class ChatScreen extends StatefulWidget {
   const ChatScreen({Key? key}) : super(key: key);
@@ -15,8 +16,7 @@ class ChatScreen extends StatefulWidget {
 }
 
 class _ChatScreenState extends State<ChatScreen> {
-  //List<ChattedUser> chatUsers = [];
-
+  List<ChatUser> chatUsers = [];
   @override
   void initState() {
     super.initState();
@@ -37,17 +37,28 @@ class _ChatScreenState extends State<ChatScreen> {
     );
 
     if (response.statusCode == 200) {
-      List jsonResponse = json.decode(response.body);
-      jsonResponse.map((data) => ChatUser.fromJson(data)).toList();
+      Map<String, dynamic> data =
+          Map<String, dynamic>.from(json.decode(response.body));
+      if (data.isNotEmpty) {
+        for (int i = 0; i < data.length; i++) {
+          if (data['$i'] != null) {
+            Map<String, dynamic> map = data['$i'];
+            //print(ChatUser.fromJson(map).firstName);
+            chatUsers.add(ChatUser.fromJson(map));
+          }
+        }
+      }
+
+      // print(data.length);
+      return chatUsers;
     } else {
       throw Exception('Failed to load users');
     }
-
-    return chatList();
   }
 
   @override
   Widget build(BuildContext context) {
+    // ChattedUser info = ChattedUser.fromJson(data);
     return Scaffold(
       appBar: AppBar(
         title: const Text("Chat"),
@@ -64,15 +75,9 @@ class _ChatScreenState extends State<ChatScreen> {
           ),
         ],
       ),
-      // body: GestureDetector(
-      //   onTap: () {
-      //     Navigator.push(context, MaterialPageRoute(builder: (context) {
-      //       return const ChatDetailScreen();
-      //     }));
-      //   },
-      // )
       body: Center(
         child: FutureBuilder<List<ChatUser>>(
+          future: chatList(),
           builder: (context, snapshot) {
             if (snapshot.hasData) {
               List<ChatUser>? data = snapshot.data;
@@ -81,21 +86,20 @@ class _ChatScreenState extends State<ChatScreen> {
                   shrinkWrap: true,
                   itemBuilder: (BuildContext context, int index) {
                     return Card(
-                        color: Colors.deepOrange[200],
+                        color: Color.fromRGBO(255, 171, 145, 1),
                         child: ListTile(
-                          title: Text(data![index].firstName),
-                          leading: const SizedBox(
-                            width: 50,
-                            height: 50,
-                            // child: Image.network(data[index].background),
-                          ),
-                          // onTap: () {
-                          //   Navigator.of(context).push(MaterialPageRoute(
-                          //       builder: (context) => ChatDetailScreen(
-                          //             chat: data[index],
-                          //           )));
-                          // }
-                        ));
+                            title: Text(data![index].firstName),
+                            leading: const SizedBox(
+                              width: 50,
+                              height: 50,
+                              // child: Image.network(data[index].background),
+                            ),
+                            onTap: () {
+                              Navigator.of(context).push(MaterialPageRoute(
+                                  builder: (context) => ChatDetailScreen(
+                                        chat: data[index],
+                                      )));
+                            }));
                   });
             } else if (snapshot.hasError) {
               return Text("${snapshot.error}");

@@ -21,6 +21,8 @@ class _LoginScreenState extends State<LoginScreen> {
   final TextEditingController passwordController = TextEditingController();
 
   bool isChecked = false;
+  late final int userID;
+  late final String userName;
 
   // Checks the users login information when they press the login button.
   login() {
@@ -56,8 +58,20 @@ class _LoginScreenState extends State<LoginScreen> {
       // If that is the case navigate the user to the home screen and return the user object.
       //print(emailController.text);
 
-      Navigator.push(context,
-          MaterialPageRoute(builder: (context) => const AdminHomeScreen()));
+      userID = LoginFullUser.fromJson(jsonDecode(response.body)).user.id;
+      print("User ID is: $userID");
+      userName =
+          LoginFullUser.fromJson(jsonDecode(response.body)).user.firstName;
+      print("User ID is: $userName");
+      if (LoginFullUser.fromJson(jsonDecode(response.body)).user.isAdmin == 1) {
+        print("Admin");
+        Navigator.push(context,
+            MaterialPageRoute(builder: (context) => const AdminHomeScreen()));
+      } else {
+        print("Staff");
+        Navigator.push(context,
+            MaterialPageRoute(builder: (context) => const StaffHomeScreen()));
+      }
       return LoginFullUser.fromJson(jsonDecode(response.body));
     } else {
       // If the response gives a status code other than 201 then some login information is incorrect

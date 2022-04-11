@@ -13,7 +13,7 @@ class ChatUserList extends StatefulWidget {
 }
 
 class _ChatUserListState extends State<ChatUserList> {
-  List<ChatUser> chatUsers = [];
+  //List<ChatUser> chatUsers = [];
 
   @override
   void initState() {
@@ -59,13 +59,6 @@ class _ChatUserListState extends State<ChatUserList> {
               icon: const Icon(Icons.add_circle, size: 30.0), onPressed: () {}),
         ],
       ),
-      // body: GestureDetector(
-      //   onTap: () {
-      //     Navigator.push(context, MaterialPageRoute(builder: (context) {
-      //       return const ChatDetailScreen();
-      //     }));
-      //   },
-      // )
       body: Center(
         child: FutureBuilder<List<ChatUser>>(
           future: userList(),
