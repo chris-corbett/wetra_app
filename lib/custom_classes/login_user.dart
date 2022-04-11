@@ -11,6 +11,19 @@ class LoginFullUser {
   }
 }
 
+class GetFullUser {
+  final List<LoginUser> users;
+
+  const GetFullUser({required this.users});
+
+  factory GetFullUser.fromJson(List<dynamic> parsedJson) {
+    List<LoginUser> users = [];
+    users = parsedJson.map((i) => LoginUser.fromJson(i)).toList();
+
+    return GetFullUser(users: users);
+  }
+}
+
 class LoginUser {
   final int id;
   final String firstName;

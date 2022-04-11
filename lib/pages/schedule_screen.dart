@@ -53,13 +53,22 @@ Future<List<Event>> getSchedules() async {
     // Used to convert stored hex values to dart Color objects
     String hexColor = schedules[i].color.replaceAll('#', '');
     hexColor = '0xff' + hexColor;
+    String hexTextColor = schedules[i].textColor.replaceAll('#', '');
+    hexTextColor = '0xff' + hexTextColor;
 
     // The color to use for the event on the calendar
     Color tempColor = Color(int.parse(hexColor));
+    Color tempTextColor = Color(int.parse(hexTextColor));
 
     // Creates new event object and adds it to the schedule source list
-    scheduleSource.add(Event(schedules[i].id, schedules[i].title, tempStart,
-        tempEnd, tempColor, schedules[i].allDay == 0 ? false : true));
+    scheduleSource.add(Event(
+        schedules[i].id,
+        schedules[i].title,
+        tempStart,
+        tempEnd,
+        tempColor,
+        tempTextColor,
+        schedules[i].allDay == 0 ? false : true));
   }
 
   return scheduleSource;
@@ -99,53 +108,69 @@ class _ScheduleScreenState extends State<ScheduleScreen>
         centerTitle: true,
         automaticallyImplyLeading: false,
       ),
-      body: Center(
-          child: Column(
-        children: [
-          TableCalendar(
-            firstDay: DateTime.utc(1970, 01, 01),
-            lastDay: DateTime.utc(3000, 01, 01),
-            focusedDay: _focusedDay,
-            calendarFormat: _calendarFormat,
-            selectedDayPredicate: (day) {
-              return isSameDay(_selectedDay, day);
-            },
-            onDaySelected: (selectedDay, focusedDay) {
-              _eventsForDay = _getEventsForDay(selectedDay);
-              setState(() {
-                _selectedDay = selectedDay;
-                _focusedDay = focusedDay;
-              });
-            },
-            onFormatChanged: (format) {
-              setState(() {
-                _calendarFormat = format;
-              });
-            },
-            onPageChanged: (focusedDay) {
-              _focusedDay = focusedDay;
-            },
-            eventLoader: (day) {
-              return _getEventsForDay(day);
-            },
-          ),
-          Expanded(
-            child: ListView.separated(
-              padding: const EdgeInsets.all(8),
-              itemCount: _eventsForDay.length,
-              itemBuilder: (BuildContext context, int index) {
-                return Container(
-                  height: 50,
-                  color: Colors.blueGrey,
-                  child: Center(child: Text(_eventsForDay[index].eventName)),
-                );
-              },
-              separatorBuilder: (BuildContext context, int index) =>
-                  const Divider(),
-            ),
-          )
-        ],
-      )),
+      body: FutureBuilder(
+        future: getSchedules(),
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return const Center(child: Text('Loading Schedule'));
+          } else {
+            if (snapshot.hasError) {
+              return const Center(child: Text('Error loading schedule'));
+            } else {
+              return Center(
+                  child: Column(
+                children: [
+                  TableCalendar(
+                    firstDay: DateTime.utc(1970, 01, 01),
+                    lastDay: DateTime.utc(3000, 01, 01),
+                    focusedDay: _focusedDay,
+                    calendarFormat: _calendarFormat,
+                    selectedDayPredicate: (day) {
+                      return isSameDay(_selectedDay, day);
+                    },
+                    onDaySelected: (selectedDay, focusedDay) {
+                      _eventsForDay = _getEventsForDay(selectedDay);
+                      setState(() {
+                        _selectedDay = selectedDay;
+                        _focusedDay = focusedDay;
+                      });
+                    },
+                    onFormatChanged: (format) {
+                      setState(() {
+                        _calendarFormat = format;
+                      });
+                    },
+                    onPageChanged: (focusedDay) {
+                      _focusedDay = focusedDay;
+                    },
+                    eventLoader: (day) {
+                      return _getEventsForDay(day);
+                    },
+                  ),
+                  Expanded(
+                    child: ListView.separated(
+                      padding: const EdgeInsets.all(8),
+                      itemCount: _eventsForDay.length,
+                      itemBuilder: (BuildContext context, int index) {
+                        return Container(
+                          height: 50,
+                          color: _eventsForDay[index].background,
+                          child: Center(
+                              child: Text(_eventsForDay[index].eventName,
+                                  style: TextStyle(
+                                      color: _eventsForDay[index].textColor))),
+                        );
+                      },
+                      separatorBuilder: (BuildContext context, int index) =>
+                          const Divider(),
+                    ),
+                  )
+                ],
+              ));
+            }
+          }
+        },
+      ),
       floatingActionButton: Visibility(
         child: FloatingActionButton(
           onPressed: () {
@@ -220,8 +245,9 @@ class Event {
   DateTime from;
   DateTime to;
   Color background;
+  Color textColor;
   bool isAllDay;
 
   Event(this.id, this.eventName, this.from, this.to, this.background,
-      this.isAllDay);
+      this.textColor, this.isAllDay);
 }
