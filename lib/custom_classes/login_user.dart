@@ -59,7 +59,7 @@ class LoginUser {
       this.address,
       required this.registeredDate,
       this.status,
-      required this.isAdmin,
+      this.isAdmin,
       this.emergencyName,
       this.emergencyPhone,
       this.background});

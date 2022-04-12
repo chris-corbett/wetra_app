@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:wetra_app/custom_classes/login_user.dart';
 import 'package:wetra_app/custom_classes/user.dart';
 import 'package:http/http.dart' as http;
+import 'package:wetra_app/pages/view_user_screen.dart';
 
 class UsersScreen extends StatefulWidget {
   const UsersScreen({Key? key}) : super(key: key);
@@ -56,13 +57,38 @@ class _UsersScreenState extends State<UsersScreen> {
                 return Center(
                   child: ListView.separated(
                       itemBuilder: (BuildContext context, int index) {
-                        return Container(
-                          height: 50,
-                          color: Colors.white,
-                          child: Center(
-                            child: Text(snapshot.data![index].firstName +
-                                ' ' +
-                                snapshot.data![index].lastName),
+                        return InkWell(
+                          onTap: () {
+                            Navigator.push(context, MaterialPageRoute(
+                              builder: (context) {
+                                return ViewUserScreen(
+                                    user: snapshot.data![index]);
+                              },
+                            ));
+                          },
+                          child: Container(
+                            height: 80,
+                            color: Colors.white,
+                            child: Center(
+                              child: Padding(
+                                padding: const EdgeInsets.all(16),
+                                child: Column(
+                                  children: [
+                                    Text('Name: ' +
+                                        snapshot.data![index].firstName +
+                                        ' ' +
+                                        snapshot.data![index].lastName),
+                                    const SizedBox(
+                                      height: 10,
+                                    ),
+                                    Text('Status: ' +
+                                        (snapshot.data![index].status == 0
+                                            ? 'Inactive'
+                                            : 'Active')),
+                                  ],
+                                ),
+                              ),
+                            ),
                           ),
                         );
                       },

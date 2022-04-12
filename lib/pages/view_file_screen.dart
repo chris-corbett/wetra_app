@@ -57,7 +57,7 @@ class _ViewFileScreenState extends State<ViewFileScreen> {
       body: Center(
         child: Column(
           children: [
-            Text(widget.file.fileName),
+            Text('File Name: ' + widget.file.fileName),
             ElevatedButton(
                 onPressed: () {
                   _launchUrl();
