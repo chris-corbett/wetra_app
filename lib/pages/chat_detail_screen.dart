@@ -15,17 +15,34 @@ class ChatDetailScreen extends StatelessWidget {
   final List<ChatDetail> messages = [];
   final messageText = TextEditingController();
 
-  void initState() {
-    //super.initState();
-    chatDetailList();
+  List<ChatLines> msg = [];
+  List<ChatLines> msgSource = [];
+  List<ChatLines> msgList = [];
+
+  getMessage() async {
+    msg = await chatDetailList();
   }
 
+  @override
+  void initState() {
+    //super.initState();
+    getMessage();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed) {
+      getMessage();
+    }
+  }
+
+  @override
   void dispose() {
     messageText.dispose;
     //super.dispose();
   }
 
-  Future<List<ChatDetail>> chatDetailList() async {
+  Future<List<ChatLines>> chatDetailList() async {
     print(userID);
     print(chat.id);
     final response = await http.post(
@@ -34,7 +51,6 @@ class ChatDetailScreen extends StatelessWidget {
       // Headers for the post request
       headers: <String, String>{
         'Accept': 'application/json',
-        //'Authorization': 'Bearer 9|vsEedaNOZSDfOTC75uh44FqjR5I1ygvqnfCvcjPK',
         'Authorization': 'Bearer $token',
         'Content-Type': 'application/x-www-form-urlencoded',
       },
@@ -43,23 +59,19 @@ class ChatDetailScreen extends StatelessWidget {
       encoding: Encoding.getByName('utf-8'),
     );
 
-    if (response.statusCode == 201) {
-      print("Getting somthing");
-      // List data = json.decode(response.body);
-      //return data.map((job) => ChatDetail.fromJson(job)).toList();
-      Map<String, dynamic> data =
-          Map<String, dynamic>.from(json.decode(response.body));
-      if (data.isNotEmpty) {
-        for (int i = 0; i < data.length; i++) {
-          Map<String, dynamic> map = data[i];
-          //print(ChatDetail.fromJson(map).id);
-          messages.add(ChatDetail.fromJson(map));
-        }
-      }
-    } else {
-      throw Exception('Failed to load messages');
+    List<ChatDetail> chats =
+        ChatDetailList.fromJson(jsonDecode(response.body)).chatList;
+
+    for (int i = 0; i < chats.length; i++) {
+      int senderText = chats[i].senderId;
+      int receiverText = chats[i].receiverId;
+      String lineText = chats[i].lineText;
+      print(lineText);
+
+      msgSource.add(ChatLines(chats[i].id, senderText, receiverText, lineText));
     }
-    return messages;
+
+    return msgSource;
   }
 
   @override
@@ -77,32 +89,46 @@ class ChatDetailScreen extends StatelessWidget {
         body: Column(
           children: [
             Expanded(
-                child: FutureBuilder<List<ChatDetail>>(
-              future: chatDetailList(),
-              builder: (context, snapshot) {
-                if (snapshot.hasData) {
-                  List<ChatDetail>? data = snapshot.data;
-                  return ListView.builder(
-                      itemCount: data?.length,
-                      shrinkWrap: true,
-                      itemBuilder: (BuildContext context, int index) {
-                        return Card(
-                            color: Colors.deepOrange[200],
-                            child: ListTile(
-                              title: Text(data![index].lineText),
-                              leading: const SizedBox(
-                                width: 50,
-                                height: 50,
-                                // child: Image.network(data[index].background),
-                              ),
-                            ));
-                      });
-                } else if (snapshot.hasError) {
-                  return Text("${snapshot.error}");
-                }
-                return const CircularProgressIndicator();
+                child: ListView.separated(
+              itemCount: msgList.length,
+              itemBuilder: (BuildContext context, int index) {
+                return Container(
+                  height: 25,
+                  child: Center(child: Text(msgList[index].textLine)),
+                );
               },
-            )),
+              separatorBuilder: (BuildContext context, int index) =>
+                  const Divider(),
+            )
+
+                //     FutureBuilder<List<ChatDetail>>(
+                //   future: chatDetailList(),
+                //   builder: (context, snapshot) {
+                //     if (snapshot.hasData) {
+                //       List<ChatDetail>? data = snapshot.data;
+                //       return ListView.builder(
+                //           itemCount: data?.length,
+                //           shrinkWrap: true,
+                //           itemBuilder: (BuildContext context, int index) {
+                //             return Card(
+                //                 color: Colors.deepOrange[200],
+                //                 child: ListTile(
+                //                   title: Text(data![index].lineText),
+                //                   leading: const SizedBox(
+                //                     width: 50,
+                //                     height: 50,
+                //                     // child: Image.network(data[index].background),
+                //                   ),
+                //                 ));
+                //           });
+                //     } else if (snapshot.hasError) {
+                //       return Text("${snapshot.error}");
+                //     }
+                //     return const CircularProgressIndicator();
+                //   },
+                // )
+
+                ),
             Stack(
               alignment: Alignment.bottomRight,
               children: <Widget>[
@@ -150,4 +176,13 @@ class ChatDetailScreen extends StatelessWidget {
           ],
         ));
   }
+}
+
+class ChatLines {
+  int id;
+  int sender;
+  int receiver;
+  String textLine;
+
+  ChatLines(this.id, this.sender, this.receiver, this.textLine);
 }
