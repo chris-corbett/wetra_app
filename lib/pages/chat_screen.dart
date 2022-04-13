@@ -15,7 +15,6 @@ class ChatScreen extends StatefulWidget {
 }
 
 class _ChatScreenState extends State<ChatScreen> {
-  List<ChatUser> chatUsers = [];
   @override
   void initState() {
     super.initState();
@@ -37,20 +36,8 @@ class _ChatScreenState extends State<ChatScreen> {
     );
 
     if (response.statusCode == 200) {
-      Map<String, dynamic> data =
-          Map<String, dynamic>.from(json.decode(response.body));
-      if (data.isNotEmpty) {
-        for (int i = 0; i < data.length; i++) {
-          if (data['$i'] != null) {
-            Map<String, dynamic> map = data['$i'];
-            //print(ChatUser.fromJson(map).firstName);
-            chatUsers.add(ChatUser.fromJson(map));
-          }
-        }
-      }
-
-      // print(data.length);
-      return chatUsers;
+      List data = json.decode(response.body);
+      return data.map((job) => ChatUser.fromJson(job)).toList();
     } else {
       throw Exception('Failed to load users');
     }
@@ -58,7 +45,6 @@ class _ChatScreenState extends State<ChatScreen> {
 
   @override
   Widget build(BuildContext context) {
-    // ChattedUser info = ChattedUser.fromJson(data);
     return Scaffold(
       appBar: AppBar(
         title: const Text("Chat"),
@@ -75,38 +61,36 @@ class _ChatScreenState extends State<ChatScreen> {
           ),
         ],
       ),
-      body: Center(
-        child: FutureBuilder<List<ChatUser>>(
-          future: chatList(),
-          builder: (context, snapshot) {
-            if (snapshot.hasData) {
-              List<ChatUser>? data = snapshot.data;
-              return ListView.builder(
-                  itemCount: data?.length,
-                  shrinkWrap: true,
-                  itemBuilder: (BuildContext context, int index) {
-                    return Card(
-                        color: const Color.fromRGBO(255, 171, 145, 1),
-                        child: ListTile(
-                            title: Text(data![index].firstName),
-                            leading: const SizedBox(
-                              width: 50,
-                              height: 50,
-                              // child: Image.network(data[index].background),
-                            ),
-                            onTap: () {
-                              Navigator.of(context).push(MaterialPageRoute(
-                                  builder: (context) => ChatDetailScreen(
-                                        chat: data[index],
-                                      )));
-                            }));
-                  });
-            } else if (snapshot.hasError) {
-              return Text("${snapshot.error}");
-            }
-            return const CircularProgressIndicator();
-          },
-        ),
+      body: FutureBuilder<List<ChatUser>>(
+        future: chatList(),
+        builder: (context, snapshot) {
+          if (snapshot.hasData) {
+            List<ChatUser>? data = snapshot.data;
+            return ListView.builder(
+                itemCount: data?.length,
+                shrinkWrap: true,
+                itemBuilder: (BuildContext context, int index) {
+                  return Card(
+                      color: const Color.fromRGBO(255, 171, 145, 1),
+                      child: ListTile(
+                          title: Text(data![index].firstName),
+                          leading: const SizedBox(
+                            width: 50,
+                            height: 50,
+                            // child: Image.network(data[index].background),
+                          ),
+                          onTap: () {
+                            Navigator.of(context).push(MaterialPageRoute(
+                                builder: (context) => ChatDetailScreen(
+                                      chat: data[index],
+                                    )));
+                          }));
+                });
+          } else if (snapshot.hasError) {
+            return Text("${snapshot.error}");
+          }
+          return const Center(child: Text("Loading..."));
+        },
       ),
     );
   }
