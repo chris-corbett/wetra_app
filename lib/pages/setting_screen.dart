@@ -3,6 +3,7 @@ import 'package:wetra_app/Authentication_pages/login_screen.dart';
 import 'package:wetra_app/custom_classes/login_user.dart';
 import 'package:wetra_app/custom_classes/user.dart';
 import 'package:wetra_app/pages/users_screen.dart';
+import 'package:http/http.dart' as http;
 
 class SettingScreen extends StatefulWidget {
   const SettingScreen({Key? key}) : super(key: key);
@@ -45,6 +46,15 @@ class _SettingScreenState extends State<SettingScreen> {
     fNameController.dispose();
     lNameController.dispose();
     super.dispose();
+  }
+
+  getGroups() async {
+    String token = User.getUser().token;
+    await http.get(Uri.parse('https://wyibulayin.scweb.ca/wetra/api/groups'),
+        headers: <String, String>{
+          'Accept': 'application/json',
+          'Authorization': 'Bearer $token',
+        });
   }
 
   @override
