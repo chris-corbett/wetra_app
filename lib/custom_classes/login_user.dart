@@ -11,6 +11,19 @@ class LoginFullUser {
   }
 }
 
+class GetFullUser {
+  final List<LoginUser> users;
+
+  const GetFullUser({required this.users});
+
+  factory GetFullUser.fromJson(List<dynamic> parsedJson) {
+    List<LoginUser> users = [];
+    users = parsedJson.map((i) => LoginUser.fromJson(i)).toList();
+
+    return GetFullUser(users: users);
+  }
+}
+
 class LoginUser {
   final int id;
   final String firstName;
@@ -26,7 +39,7 @@ class LoginUser {
   final String? address;
   final String registeredDate;
   final int? status;
-  final int isAdmin;
+  final int? isAdmin;
   final String? emergencyName;
   final String? emergencyPhone;
   final String? background;
@@ -46,7 +59,7 @@ class LoginUser {
       this.address,
       required this.registeredDate,
       this.status,
-      required this.isAdmin,
+      this.isAdmin,
       this.emergencyName,
       this.emergencyPhone,
       this.background});

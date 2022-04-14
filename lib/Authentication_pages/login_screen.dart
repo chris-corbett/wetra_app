@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:wetra_app/Admin_side_pages/bottom_nav_bar.dart';
-import 'package:wetra_app/Staff_side_pages/bottom_nav_bar.dart';
-import 'package:wetra_app/custom_objects/login_user.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:wetra_app/custom_classes/login_register_popup.dart';
+import 'package:wetra_app/pages/bottom_nav_bar.dart';
+import 'package:wetra_app/custom_classes/login_user.dart';
+import 'package:wetra_app/custom_classes/user.dart';
 import 'registration_screen.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
@@ -19,14 +21,24 @@ class _LoginScreenState extends State<LoginScreen> {
   final TextEditingController emailController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
 
+  bool isChecked = false;
+  late final int userID;
+  late final String userName;
+
   // Checks the users login information when they press the login button.
   login() {
     userLogin(emailController.text, passwordController.text);
   }
 
+  @override
+  void initState() {
+    _loadUserEmailPassword();
+    super.initState();
+  }
+
   // Sends http post request to the api to check if the user has entered
   // their correct login information and allows them to login if the information is correct.
-  Future<LoginFullUser> userLogin(String email, String password) async {
+  void userLogin(String email, String password) async {
     final response = await http.post(
       // API URL
       Uri.parse('https://wyibulayin.scweb.ca/wetra/api/login'),
@@ -47,32 +59,21 @@ class _LoginScreenState extends State<LoginScreen> {
       // If that is the case navigate the user to the home screen and return the user object.
       //print(emailController.text);
 
-      Navigator.push(context,
-          MaterialPageRoute(builder: (context) => const AdminHomeScreen()));
-      return LoginFullUser.fromJson(jsonDecode(response.body));
+      userID = LoginFullUser.fromJson(jsonDecode(response.body)).user.id;
+      print("User ID is: $userID");
+      userName =
+          LoginFullUser.fromJson(jsonDecode(response.body)).user.firstName;
+      print("User ID is: $userName");
+
+      User.setUser(LoginFullUser.fromJson(jsonDecode(response.body)));
+      Navigator.push(
+          context, MaterialPageRoute(builder: (context) => const HomeScreen()));
     } else {
       // If the response gives a status code other than 201 then some login information is incorrect
       // or an account does not exist for that user. If that is the case display the wrong information popup
-      // and throw an exception so the user cannot login.
-      incorrectInfo();
-      throw Exception('Failed to login.');
+      LoginRegisterPopup.showPopup(context, "Incorrect Email or Password",
+          "The email or password you have entered is incorrect.");
     }
-  }
-
-  // Displays popup notification if the user enters incorrect login information.
-  Future<String?> incorrectInfo() {
-    return showDialog<String>(
-        context: context,
-        builder: (BuildContext context) => AlertDialog(
-                title: const Text('Incorrect Email or Password'),
-                content: const Text(
-                    'The email or password you have entered is incorrect please try again.'),
-                actions: <Widget>[
-                  TextButton(
-                    onPressed: () => Navigator.pop(context, 'OK'),
-                    child: const Text('OK'),
-                  ),
-                ]));
   }
 
   @override
@@ -132,6 +133,28 @@ class _LoginScreenState extends State<LoginScreen> {
       ),
     );
 
+    final rememberMe = Material(
+      child: Row(mainAxisAlignment: MainAxisAlignment.start, children: [
+        SizedBox(
+            child: Theme(
+          data: ThemeData(
+              unselectedWidgetColor:
+                  const Color.fromRGBO(203, 12, 66, 1) // Your color
+              ),
+          child: Checkbox(
+              activeColor: const Color.fromRGBO(203, 12, 66, 1),
+              value: isChecked,
+              onChanged: _handleRemeberme),
+        )),
+        const SizedBox(width: 20.0),
+        const Text("Remember Me",
+            style: TextStyle(
+                color: Color.fromRGBO(203, 12, 66, 1),
+                fontWeight: FontWeight.w900,
+                fontSize: 15))
+      ]),
+    );
+
     return Scaffold(
       backgroundColor: Colors.white,
       body: Center(
@@ -156,8 +179,10 @@ class _LoginScreenState extends State<LoginScreen> {
                     emailField,
                     const SizedBox(height: 25),
                     passwordField,
-                    const SizedBox(height: 35),
-                    loginButton,
+                    const SizedBox(height: 5),
+                    rememberMe,
+                    const SizedBox(height: 15),
+                    GestureDetector(child: loginButton),
                     const SizedBox(height: 15),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.center,
@@ -189,5 +214,43 @@ class _LoginScreenState extends State<LoginScreen> {
         ),
       ),
     );
+  }
+
+  void _loadUserEmailPassword() async {
+    print("Load Email");
+    try {
+      SharedPreferences _prefs = await SharedPreferences.getInstance();
+      var _email = _prefs.getString("email") ?? "";
+      var _password = _prefs.getString("password") ?? "";
+      var _remeberMe = _prefs.getBool("remember_me") ?? false;
+
+      print(_remeberMe);
+      print(_email);
+      print(_password);
+      if (_remeberMe) {
+        setState(() {
+          isChecked = true;
+        });
+        emailController.text = _email;
+        passwordController.text = _password;
+      }
+    } catch (e) {
+      print(e);
+    }
+  }
+
+  void _handleRemeberme(bool? value) {
+    print("Handle Rember Me");
+    isChecked = value!;
+    SharedPreferences.getInstance().then(
+      (prefs) {
+        prefs.setBool("remember_me", value);
+        prefs.setString('email', emailController.text);
+        prefs.setString('password', passwordController.text);
+      },
+    );
+    setState(() {
+      isChecked = value;
+    });
   }
 }
