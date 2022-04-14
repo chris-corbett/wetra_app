@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import 'package:wetra_app/custom_classes/login_user.dart';
 import 'dart:convert';
-
-import '../custom_classes/chat_user.dart';
 import 'chat_detail_screen.dart';
 
 class ChatUserList extends StatefulWidget {
@@ -13,15 +12,13 @@ class ChatUserList extends StatefulWidget {
 }
 
 class _ChatUserListState extends State<ChatUserList> {
-  //List<ChatUser> chatUsers = [];
-
   @override
   void initState() {
     super.initState();
     userList();
   }
 
-  Future<List<ChatUser>> userList() async {
+  Future<List<LoginUser>> userList() async {
     final response = await http.post(
       // API URL
       Uri.parse('https://wyibulayin.scweb.ca/wetra/api/users/all'),
@@ -35,8 +32,9 @@ class _ChatUserListState extends State<ChatUserList> {
     );
 
     if (response.statusCode == 200) {
-      List jsonResponse = json.decode(response.body);
-      return jsonResponse.map((data) => ChatUser.fromJson(data)).toList();
+      List<LoginUser> chatUsers =
+          GetFullUser.fromJson(jsonDecode(response.body)).users;
+      return chatUsers;
     } else {
       throw Exception('Failed to load users');
     }
@@ -60,19 +58,18 @@ class _ChatUserListState extends State<ChatUserList> {
         ],
       ),
       body: Center(
-        child: FutureBuilder<List<ChatUser>>(
+        child: FutureBuilder<List<LoginUser>>(
           future: userList(),
           builder: (context, snapshot) {
             if (snapshot.hasData) {
-              List<ChatUser>? data = snapshot.data;
               return ListView.builder(
-                  itemCount: data?.length,
+                  itemCount: snapshot.data!.length,
                   shrinkWrap: true,
                   itemBuilder: (BuildContext context, int index) {
                     return Card(
                         color: Colors.deepOrange[200],
                         child: ListTile(
-                            title: Text(data![index].firstName),
+                            title: Text(snapshot.data![index].firstName),
                             leading: const SizedBox(
                               width: 50,
                               height: 50,
@@ -81,7 +78,7 @@ class _ChatUserListState extends State<ChatUserList> {
                             onTap: () {
                               Navigator.of(context).push(MaterialPageRoute(
                                   builder: (context) => ChatDetailScreen(
-                                        chat: data[index],
+                                        chat: snapshot.data![index],
                                       )));
                             }));
                   });

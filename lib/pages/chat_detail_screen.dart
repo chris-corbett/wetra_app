@@ -2,11 +2,11 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:wetra_app/custom_classes/chat_detail.dart';
-import 'package:wetra_app/custom_classes/chat_user.dart';
+import 'package:wetra_app/custom_classes/login_user.dart';
 import 'package:wetra_app/custom_classes/user.dart';
 
 class ChatDetailScreen extends StatelessWidget {
-  final ChatUser chat;
+  final LoginUser chat;
   late final int chatID;
   final List<ChatDetail> chatUsers = [];
   ChatDetailScreen({Key? key, required this.chat}) : super(key: key);

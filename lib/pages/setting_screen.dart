@@ -1,5 +1,8 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:wetra_app/Authentication_pages/login_screen.dart';
+import 'package:wetra_app/custom_classes/group.dart';
 import 'package:wetra_app/custom_classes/login_user.dart';
 import 'package:wetra_app/custom_classes/user.dart';
 import 'package:wetra_app/pages/users_screen.dart';
@@ -11,6 +14,8 @@ class SettingScreen extends StatefulWidget {
   @override
   State<SettingScreen> createState() => _SettingScreenState();
 }
+
+late List<Group> groups;
 
 class _SettingScreenState extends State<SettingScreen> {
   LoginUser user = User.getUser().user;
@@ -48,13 +53,16 @@ class _SettingScreenState extends State<SettingScreen> {
     super.dispose();
   }
 
-  getGroups() async {
+  Future<List<Group>> getGroups() async {
     String token = User.getUser().token;
-    await http.get(Uri.parse('https://wyibulayin.scweb.ca/wetra/api/groups'),
+    final response = await http.get(
+        Uri.parse('https://wyibulayin.scweb.ca/wetra/api/groups'),
         headers: <String, String>{
           'Accept': 'application/json',
           'Authorization': 'Bearer $token',
         });
+
+    return FullGroup.fromJson(jsonDecode(response.body)).groups;
   }
 
   @override

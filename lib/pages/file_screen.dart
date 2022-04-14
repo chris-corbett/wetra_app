@@ -74,11 +74,12 @@ class _FileScreenState extends State<FileScreen> {
                           }));
                         },
                         child: Container(
-                            height: 50,
-                            color: Colors.white,
-                            child: Center(
-                              child: Text(snapshot.data![index].fileName),
-                            )),
+                          height: 50,
+                          color: Colors.white,
+                          child: Center(
+                            child: Text(snapshot.data![index].fileName),
+                          ),
+                        ),
                       );
                     },
                     separatorBuilder: (BuildContext context, int index) =>
