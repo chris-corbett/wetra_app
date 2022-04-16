@@ -19,19 +19,24 @@ _pickFile() async {
     String token = User.getUser().token;
     File file = File(result.files.single.path!);
 
-    final response = await http.post(
-        Uri.parse('https://wyibulayin.scweb.ca/wetra/api/files'),
-        headers: <String, String>{
-          'Accept': 'application/json',
-          'Authorization': 'Bearer $token',
-          'Content-Type': 'application/x-www-form-urlencoded',
-        },
-        body: {
-          'file=@': file.path,
-          'shared_to=': '0',
-        });
-
-    print(response.body);
+    // final response = await http.post(
+    //   Uri.parse('https://wyibulayin.scweb.ca/wetra/api/files'),
+    //   headers: <String, String>{
+    //     'Accept': 'application/json',
+    //     'Authorization': 'Bearer $token',
+    //     'Content-Type': 'multipart/form-data',
+    //   },
+    //   body: jsonEncode({'file=@': file.path, 'shared_to=': '0'}),
+    // );
+    print(file.path);
+    final request = http.MultipartRequest(
+        'POST', Uri.parse('https://wyibulayin.scweb.ca/wetra/api/files'));
+    request.fields['group_id'] = '0';
+    request.files.add(http.MultipartFile.fromString('file', file.path));
+    request.send().then((response) {
+      print(response.statusCode);
+    });
+    //print(response.body);
   } else {}
 }
 

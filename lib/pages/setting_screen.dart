@@ -15,7 +15,7 @@ class SettingScreen extends StatefulWidget {
   State<SettingScreen> createState() => _SettingScreenState();
 }
 
-late List<Group> groups;
+late List<Group> userGroups;
 
 class _SettingScreenState extends State<SettingScreen> {
   LoginUser user = User.getUser().user;
@@ -38,7 +38,6 @@ class _SettingScreenState extends State<SettingScreen> {
     addressController.text = user.address != null ? user.address! : '';
     emailController.text = user.email;
     jTitleController.text = user.jobTitle != null ? user.jobTitle! : '';
-    //groupController.text = user.groupId
     eContactNameController.text =
         user.emergencyName != null ? user.emergencyName! : '';
     eContactPhoneController.text =
@@ -50,6 +49,13 @@ class _SettingScreenState extends State<SettingScreen> {
   void dispose() {
     fNameController.dispose();
     lNameController.dispose();
+    pNumberController.dispose();
+    addressController.dispose();
+    emailController.dispose();
+    jTitleController.dispose();
+    groupController.dispose();
+    eContactNameController.dispose();
+    eContactPhoneController.dispose();
     super.dispose();
   }
 
@@ -62,7 +68,9 @@ class _SettingScreenState extends State<SettingScreen> {
           'Authorization': 'Bearer $token',
         });
 
-    return FullGroup.fromJson(jsonDecode(response.body)).groups;
+    final groups = FullGroup.fromJson(jsonDecode(response.body)).groups;
+    userGroups = groups;
+    return groups;
   }
 
   @override
@@ -142,16 +150,35 @@ class _SettingScreenState extends State<SettingScreen> {
               ),
             ),
             Padding(
-              padding: const EdgeInsets.all(16),
-              child: TextFormField(
-                enabled: false,
-                controller: groupController,
-                decoration: const InputDecoration(
-                  hintText: 'Group',
-                  labelText: 'Group',
-                ),
-              ),
-            ),
+                padding: const EdgeInsets.all(16),
+                child: FutureBuilder<List<Group>>(
+                  future: getGroups(),
+                  builder: (context, snapshot) {
+                    if (snapshot.connectionState == ConnectionState.waiting) {
+                      return const Center(child: Text('Loading groups'));
+                    } else {
+                      if (snapshot.hasError) {
+                        return const Center(
+                            child: Text('Error loading groups'));
+                      } else {
+                        groupController.text = user.groupId != 0
+                            ? snapshot.data!
+                                .firstWhere(
+                                    (element) => element.id == user.groupId)
+                                .name
+                            : '';
+                        return TextFormField(
+                          enabled: false,
+                          controller: groupController,
+                          decoration: const InputDecoration(
+                            hintText: 'Group',
+                            labelText: 'Group',
+                          ),
+                        );
+                      }
+                    }
+                  },
+                )),
             Padding(
               padding: const EdgeInsets.all(16),
               child: TextFormField(
