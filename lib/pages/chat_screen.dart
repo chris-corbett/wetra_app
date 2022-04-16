@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:async';
 import 'package:flutter/material.dart';
+import 'package:wetra_app/custom_classes/api_const.dart';
 import 'package:wetra_app/custom_classes/login_user.dart';
 import 'package:wetra_app/custom_classes/user.dart';
 import 'package:wetra_app/pages/chat_detail_screen.dart';
@@ -24,7 +25,7 @@ class _ChatScreenState extends State<ChatScreen> {
     String token = User.getUser().token;
     final response = await http.post(
       // API URL
-      Uri.parse('https://wyibulayin.scweb.ca/wetra/api/messages/chatted_users'),
+      Uri.parse(ApiConst.api + 'messages/chatted_users'),
       // Headers for the post request
       headers: <String, String>{
         'Accept': 'application/json',

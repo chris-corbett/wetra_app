@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import 'package:wetra_app/custom_classes/api_const.dart';
 import 'dart:convert';
 
 import 'package:wetra_app/custom_classes/login_register_popup.dart';
@@ -36,7 +37,7 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
       String password, String confirmPassword) async {
     final response = await http.post(
       // API URL
-      Uri.parse('https://wyibulayin.scweb.ca/wetra/api/register'),
+      Uri.parse(ApiConst.api + 'register'),
       // Headers for the post request
       headers: <String, String>{
         'Accept': 'application/json',

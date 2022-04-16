@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:wetra_app/custom_classes/api_const.dart';
 import 'package:wetra_app/custom_classes/login_register_popup.dart';
 import 'package:wetra_app/pages/bottom_nav_bar.dart';
 import 'package:wetra_app/custom_classes/login_user.dart';
@@ -41,7 +42,7 @@ class _LoginScreenState extends State<LoginScreen> {
   void userLogin(String email, String password) async {
     final response = await http.post(
       // API URL
-      Uri.parse('https://wyibulayin.scweb.ca/wetra/api/login'),
+      Uri.parse(ApiConst.api + 'login'),
       // Headers for the post request
       headers: <String, String>{
         'Accept': 'application/json',

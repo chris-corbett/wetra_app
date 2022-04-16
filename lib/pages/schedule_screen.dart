@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:table_calendar/table_calendar.dart';
+import 'package:wetra_app/custom_classes/api_const.dart';
 import 'package:wetra_app/custom_classes/schedule.dart';
 import 'package:wetra_app/custom_classes/user.dart';
 import 'package:http/http.dart' as http;
@@ -28,7 +29,7 @@ List<Event> scheduleSource = [];
 Future<List<Event>> getSchedules() async {
   String token = User.getUser().token;
   final response = await http.get(
-    Uri.parse('https://wyibulayin.scweb.ca/wetra/api/schedules'),
+    Uri.parse(ApiConst.api + 'schedules'),
     headers: <String, String>{
       'Accept': 'application/json',
       'Authorization': 'Bearer $token',

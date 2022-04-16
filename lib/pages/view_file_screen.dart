@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:wetra_app/custom_classes/api_const.dart';
 import 'package:wetra_app/custom_classes/uploaded_file.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:wetra_app/custom_classes/user.dart';
@@ -15,7 +16,7 @@ class ViewFileScreen extends StatefulWidget {
 
 class _ViewFileScreenState extends State<ViewFileScreen> {
   _launchUrl() async {
-    String fileUrl = 'https://wyibulayin.scweb.ca';
+    String fileUrl = UrlConst.url;
     fileUrl += widget.file.fileUrl.replaceAll(' ', '%20');
 
     if (await canLaunch(fileUrl)) {
@@ -28,8 +29,7 @@ class _ViewFileScreenState extends State<ViewFileScreen> {
   _deleteFile() async {
     String token = User.getUser().token;
     final response = await http.delete(
-      Uri.parse(
-          'https://wyibulayin.scweb.ca/wetra/api/files/${widget.file.id}'),
+      Uri.parse(ApiConst.api + 'files/${widget.file.id}'),
       headers: <String, String>{
         'Accept': 'application/json',
         'Authorization': 'Bearer $token',

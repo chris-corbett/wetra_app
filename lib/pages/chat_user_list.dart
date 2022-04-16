@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import 'package:wetra_app/custom_classes/api_const.dart';
 import 'package:wetra_app/custom_classes/login_user.dart';
 import 'dart:convert';
 import 'chat_detail_screen.dart';
@@ -21,7 +22,7 @@ class _ChatUserListState extends State<ChatUserList> {
   Future<List<LoginUser>> userList() async {
     final response = await http.post(
       // API URL
-      Uri.parse('https://wyibulayin.scweb.ca/wetra/api/users/all'),
+      Uri.parse(ApiConst.api + 'users/all'),
       // Headers for the post request
       headers: <String, String>{
         'Accept': 'application/json',

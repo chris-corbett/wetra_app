@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import 'package:wetra_app/custom_classes/api_const.dart';
 import 'package:wetra_app/custom_classes/chat_detail.dart';
 import 'package:wetra_app/custom_classes/login_user.dart';
 import 'package:wetra_app/custom_classes/user.dart';
@@ -15,7 +16,7 @@ class ChatDetailScreen extends StatelessWidget {
     String token = User.getUser().token;
     final response = await http.post(
       // API URL
-      Uri.parse('https://wyibulayin.scweb.ca/wetra/api/messages/chat'),
+      Uri.parse(ApiConst.api + 'messages/chat'),
       // Headers for the post request
       headers: <String, String>{
         'Accept': 'application/json',

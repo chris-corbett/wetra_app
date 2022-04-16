@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
+import 'package:wetra_app/custom_classes/api_const.dart';
 import 'package:wetra_app/custom_classes/login_user.dart';
 import 'package:wetra_app/custom_classes/user.dart';
 import 'package:http/http.dart' as http;
@@ -18,7 +19,7 @@ List<LoginUser> userSource = [];
 Future<List<LoginUser>> getFullUsers() async {
   String token = User.getUser().token;
   final response = await http.get(
-    Uri.parse('https://wyibulayin.scweb.ca/wetra/api/users'),
+    Uri.parse(ApiConst.api + 'users'),
     headers: <String, String>{
       'Accept': 'application/json',
       'Authorization': 'Bearer $token',

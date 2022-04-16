@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:wetra_app/Authentication_pages/login_screen.dart';
+import 'package:wetra_app/custom_classes/api_const.dart';
 import 'package:wetra_app/custom_classes/group.dart';
 import 'package:wetra_app/custom_classes/login_user.dart';
 import 'package:wetra_app/custom_classes/user.dart';
@@ -61,12 +62,11 @@ class _SettingScreenState extends State<SettingScreen> {
 
   Future<List<Group>> getGroups() async {
     String token = User.getUser().token;
-    final response = await http.get(
-        Uri.parse('https://wyibulayin.scweb.ca/wetra/api/groups'),
-        headers: <String, String>{
-          'Accept': 'application/json',
-          'Authorization': 'Bearer $token',
-        });
+    final response = await http
+        .get(Uri.parse(ApiConst.api + 'groups'), headers: <String, String>{
+      'Accept': 'application/json',
+      'Authorization': 'Bearer $token',
+    });
 
     final groups = FullGroup.fromJson(jsonDecode(response.body)).groups;
     userGroups = groups;

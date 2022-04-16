@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import 'package:wetra_app/custom_classes/api_const.dart';
 import 'package:wetra_app/custom_classes/user.dart';
 
 class UploadFileScreen extends StatefulWidget {
@@ -29,8 +30,8 @@ _pickFile() async {
     //   body: jsonEncode({'file=@': file.path, 'shared_to=': '0'}),
     // );
     print(file.path);
-    final request = http.MultipartRequest(
-        'POST', Uri.parse('https://wyibulayin.scweb.ca/wetra/api/files'));
+    final request =
+        http.MultipartRequest('POST', Uri.parse(ApiConst.api + 'files'));
     request.fields['group_id'] = '0';
     request.files.add(http.MultipartFile.fromString('file', file.path));
     request.send().then((response) {
