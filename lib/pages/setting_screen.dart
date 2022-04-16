@@ -73,6 +73,25 @@ class _SettingScreenState extends State<SettingScreen> {
     return groups;
   }
 
+  void updateSettings() async {
+    String token = User.getUser().token;
+    await http.put(Uri.parse(ApiConst.api + 'users/${User.getUser().user.id}'),
+        headers: <String, String>{
+          'Accept': 'application/json',
+          'Content-Type': 'application/x-www-form-urlencoded',
+          'Authorization': 'Bearer $token',
+        },
+        body: {
+          'first_name': fNameController.text,
+          'last_name': lNameController.text,
+          'phone_number': pNumberController.text,
+          'address': addressController.text,
+          'email': emailController.text,
+          'emergency_name': eContactNameController.text,
+          'emergency_phone': eContactPhoneController.text,
+        });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -87,6 +106,32 @@ class _SettingScreenState extends State<SettingScreen> {
         child: SingleChildScrollView(
             child: Column(
           children: [
+            Padding(
+              padding: const EdgeInsets.all(16),
+              child: Visibility(
+                child: ElevatedButton(
+                    child: const Text('Users'),
+                    onPressed: () {
+                      Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) => const UsersScreen()));
+                    }),
+                visible: User.getUser().user.isAdmin == 0 ? false : true,
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.all(16),
+              child: ElevatedButton(
+                child: const Text('Logout'),
+                onPressed: () {
+                  Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) => const LoginScreen()));
+                },
+              ),
+            ),
             Padding(
               padding: const EdgeInsets.all(16),
               child: TextFormField(
@@ -199,25 +244,14 @@ class _SettingScreenState extends State<SettingScreen> {
                 ),
               ),
             ),
-            Visibility(
+            Padding(
+              padding: const EdgeInsets.all(16),
               child: ElevatedButton(
-                  child: const Text('Users'),
-                  onPressed: () {
-                    Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                            builder: (context) => const UsersScreen()));
-                  }),
-              visible: User.getUser().user.isAdmin == 0 ? false : true,
-            ),
-            ElevatedButton(
-              child: const Text('Logout'),
-              onPressed: () {
-                Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                        builder: (context) => const LoginScreen()));
-              },
+                child: const Text('Update Settings'),
+                onPressed: () {
+                  updateSettings();
+                },
+              ),
             ),
           ],
         )),
