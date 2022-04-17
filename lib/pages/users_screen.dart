@@ -95,7 +95,8 @@ class _UsersScreenState extends State<UsersScreen> {
                           onTap: () {
                             Navigator.push(context, MaterialPageRoute(
                               builder: (context) {
-                                return ViewUserScreen(user: users[index]);
+                                return ViewUserScreen(
+                                    user: users[index], groups: groups);
                               },
                             ));
                           },

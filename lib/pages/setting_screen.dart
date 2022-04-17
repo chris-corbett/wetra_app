@@ -31,6 +31,7 @@ class _SettingScreenState extends State<SettingScreen> {
 
   @override
   void initState() {
+    // Initialize the text fields with the information for the user
     fNameController.text = user.firstName;
     lNameController.text = user.lastName;
     pNumberController.text = user.phoneNumber != null ? user.phoneNumber! : '';
@@ -202,12 +203,13 @@ class _SettingScreenState extends State<SettingScreen> {
                         return const Center(
                             child: Text('Error loading groups'));
                       } else {
-                        groupController.text = user.groupId != 0
-                            ? snapshot.data!
-                                .firstWhere(
-                                    (element) => element.id == user.groupId)
-                                .name
-                            : '';
+                        groupController.text =
+                            user.groupId != 0 && user.groupId != null
+                                ? snapshot.data!
+                                    .firstWhere(
+                                        (element) => element.id == user.groupId)
+                                    .name
+                                : '';
                         return TextFormField(
                           enabled: false,
                           controller: groupController,
