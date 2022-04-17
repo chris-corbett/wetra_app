@@ -57,7 +57,19 @@ class _FileScreenState extends State<FileScreen> {
           future: getFiles(),
           builder: (context, snapshot) {
             if (snapshot.connectionState == ConnectionState.waiting) {
-              return const Center(child: Text('Loading Files'));
+              return Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: const [
+                  Padding(
+                    padding: EdgeInsets.all(16),
+                    child: CircularProgressIndicator(),
+                  ),
+                  Padding(
+                    padding: EdgeInsets.all(16),
+                    child: Center(child: Text('Loading Files')),
+                  ),
+                ],
+              );
             } else {
               if (snapshot.hasError) {
                 return const Center(child: Text('Error loading files'));

@@ -16,8 +16,6 @@ class SettingScreen extends StatefulWidget {
   State<SettingScreen> createState() => _SettingScreenState();
 }
 
-late List<Group> userGroups;
-
 class _SettingScreenState extends State<SettingScreen> {
   LoginUser user = User.getUser().user;
 
@@ -68,9 +66,7 @@ class _SettingScreenState extends State<SettingScreen> {
       'Authorization': 'Bearer $token',
     });
 
-    final groups = FullGroup.fromJson(jsonDecode(response.body)).groups;
-    userGroups = groups;
-    return groups;
+    return FullGroup.fromJson(jsonDecode(response.body)).groups;
   }
 
   void updateSettings() async {
@@ -108,20 +104,6 @@ class _SettingScreenState extends State<SettingScreen> {
           children: [
             Padding(
               padding: const EdgeInsets.all(16),
-              child: Visibility(
-                child: ElevatedButton(
-                    child: const Text('Users'),
-                    onPressed: () {
-                      Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                              builder: (context) => const UsersScreen()));
-                    }),
-                visible: User.getUser().user.isAdmin == 0 ? false : true,
-              ),
-            ),
-            Padding(
-              padding: const EdgeInsets.all(16),
               child: ElevatedButton(
                 child: const Text('Logout'),
                 onPressed: () {
@@ -131,6 +113,20 @@ class _SettingScreenState extends State<SettingScreen> {
                           builder: (context) => const LoginScreen()));
                 },
               ),
+            ),
+            Visibility(
+              child: Padding(
+                padding: const EdgeInsets.all(16),
+                child: ElevatedButton(
+                    child: const Text('Users'),
+                    onPressed: () {
+                      Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) => const UsersScreen()));
+                    }),
+              ),
+              visible: User.getUser().user.isAdmin == 0 ? false : true,
             ),
             Padding(
               padding: const EdgeInsets.all(16),

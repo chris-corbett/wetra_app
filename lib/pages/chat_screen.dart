@@ -80,7 +80,19 @@ class _ChatScreenState extends State<ChatScreen> {
           future: chatList(),
           builder: (context, snapshot) {
             if (snapshot.connectionState == ConnectionState.waiting) {
-              return const CircularProgressIndicator();
+              return Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: const [
+                  Padding(
+                    padding: EdgeInsets.all(16),
+                    child: CircularProgressIndicator(),
+                  ),
+                  Padding(
+                    padding: EdgeInsets.all(16),
+                    child: Center(child: Text('Loading Chat')),
+                  ),
+                ],
+              );
             } else {
               if (snapshot.hasError) {
                 return Text("${snapshot.error}");

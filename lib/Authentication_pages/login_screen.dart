@@ -61,10 +61,10 @@ class _LoginScreenState extends State<LoginScreen> {
       //print(emailController.text);
 
       userID = LoginFullUser.fromJson(jsonDecode(response.body)).user.id;
-      print("User ID is: $userID");
+      //print("User ID is: $userID");
       userName =
           LoginFullUser.fromJson(jsonDecode(response.body)).user.firstName;
-      print("User ID is: $userName");
+      //print("User ID is: $userName");
 
       User.setUser(LoginFullUser.fromJson(jsonDecode(response.body)));
       Navigator.push(
@@ -218,16 +218,16 @@ class _LoginScreenState extends State<LoginScreen> {
   }
 
   void _loadUserEmailPassword() async {
-    print("Load Email");
+    //print("Load Email");
     try {
       SharedPreferences _prefs = await SharedPreferences.getInstance();
       var _email = _prefs.getString("email") ?? "";
       var _password = _prefs.getString("password") ?? "";
       var _remeberMe = _prefs.getBool("remember_me") ?? false;
 
-      print(_remeberMe);
-      print(_email);
-      print(_password);
+      //print(_remeberMe);
+      //print(_email);
+      //print(_password);
       if (_remeberMe) {
         setState(() {
           isChecked = true;
@@ -236,12 +236,12 @@ class _LoginScreenState extends State<LoginScreen> {
         passwordController.text = _password;
       }
     } catch (e) {
-      print(e);
+      //print(e);
     }
   }
 
   void _handleRemeberme(bool? value) {
-    print("Handle Rember Me");
+    //print("Handle Rember Me");
     isChecked = value!;
     SharedPreferences.getInstance().then(
       (prefs) {

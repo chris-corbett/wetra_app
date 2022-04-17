@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:wetra_app/custom_classes/api_const.dart';
+import 'package:wetra_app/custom_classes/group.dart';
 import 'package:wetra_app/custom_classes/login_user.dart';
 import 'package:wetra_app/custom_classes/user.dart';
 import 'package:http/http.dart' as http;
@@ -31,6 +32,17 @@ Future<List<LoginUser>> getFullUsers() async {
   return users;
 }
 
+Future<List<Group>> getGroups() async {
+  String token = User.getUser().token;
+  final response = await http
+      .get(Uri.parse(ApiConst.api + 'groups'), headers: <String, String>{
+    'Accept': 'application/json',
+    'Authorization': 'Bearer $token',
+  });
+
+  return FullGroup.fromJson(jsonDecode(response.body)).groups;
+}
+
 class _UsersScreenState extends State<UsersScreen> {
   @override
   Widget build(BuildContext context) {
@@ -46,29 +58,50 @@ class _UsersScreenState extends State<UsersScreen> {
           centerTitle: true,
           automaticallyImplyLeading: false,
         ),
-        body: FutureBuilder<List<LoginUser>>(
-          future: getFullUsers(),
-          builder: (context, snapshot) {
+        body: FutureBuilder<List<dynamic>>(
+          future: Future.wait([getFullUsers(), getGroups()]),
+          builder: (context, AsyncSnapshot<List<dynamic>> snapshot) {
             if (snapshot.connectionState == ConnectionState.waiting) {
-              return const Center(child: Text('Loading Users'));
+              return Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: const [
+                  Padding(
+                    padding: EdgeInsets.all(16),
+                    child: CircularProgressIndicator(),
+                  ),
+                  Padding(
+                    padding: EdgeInsets.all(16),
+                    child: Center(child: Text('Loading Users')),
+                  ),
+                ],
+              );
             } else {
               if (snapshot.hasError) {
                 return const Center(child: Text('Error loading users'));
               } else {
+                List<LoginUser> users = snapshot.data![0];
+                List<Group> groups = snapshot.data![1];
                 return Center(
                   child: ListView.separated(
                       itemBuilder: (BuildContext context, int index) {
+                        String userGroup = users[index].groupId != 0 &&
+                                users[index].groupId != null
+                            ? groups
+                                .firstWhere((element) =>
+                                    element.id == users[index].groupId)
+                                .name
+                            : 'No Group';
                         return InkWell(
                           onTap: () {
                             Navigator.push(context, MaterialPageRoute(
                               builder: (context) {
-                                return ViewUserScreen(
-                                    user: snapshot.data![index]);
+                                return ViewUserScreen(user: users[index]);
                               },
                             ));
                           },
                           child: Container(
-                            height: 80,
+                            constraints: const BoxConstraints(
+                                maxHeight: double.infinity),
                             color: Colors.white,
                             child: Center(
                               child: Padding(
@@ -76,14 +109,12 @@ class _UsersScreenState extends State<UsersScreen> {
                                 child: Column(
                                   children: [
                                     Text('Name: ' +
-                                        snapshot.data![index].firstName +
+                                        users[index].firstName +
                                         ' ' +
-                                        snapshot.data![index].lastName),
-                                    const SizedBox(
-                                      height: 10,
-                                    ),
+                                        users[index].lastName),
+                                    Text('Group: ' + userGroup),
                                     Text('Status: ' +
-                                        (snapshot.data![index].status == 0
+                                        (users[index].status == 0
                                             ? 'Inactive'
                                             : 'Active')),
                                   ],
@@ -95,7 +126,7 @@ class _UsersScreenState extends State<UsersScreen> {
                       },
                       separatorBuilder: (BuildContext context, int index) =>
                           const Divider(),
-                      itemCount: snapshot.data!.length),
+                      itemCount: users.length),
                 );
               }
             }
