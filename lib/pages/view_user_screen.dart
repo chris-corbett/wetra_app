@@ -243,6 +243,9 @@ class _ViewUserScreenState extends State<ViewUserScreen> {
                         Padding(
                           padding: const EdgeInsets.all(16),
                           child: ElevatedButton(
+                            style: ElevatedButton.styleFrom(
+                              minimumSize: const Size.fromHeight(40),
+                            ),
                             child: const Text('Update Settings'),
                             onPressed: () {
                               updateSettings();

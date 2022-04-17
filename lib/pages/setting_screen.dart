@@ -106,6 +106,9 @@ class _SettingScreenState extends State<SettingScreen> {
             Padding(
               padding: const EdgeInsets.all(16),
               child: ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                  minimumSize: const Size.fromHeight(40),
+                ),
                 child: const Text('Logout'),
                 onPressed: () {
                   Navigator.push(
@@ -119,6 +122,9 @@ class _SettingScreenState extends State<SettingScreen> {
               child: Padding(
                 padding: const EdgeInsets.all(16),
                 child: ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                      minimumSize: const Size.fromHeight(40),
+                    ),
                     child: const Text('Users'),
                     onPressed: () {
                       Navigator.push(
@@ -245,6 +251,9 @@ class _SettingScreenState extends State<SettingScreen> {
             Padding(
               padding: const EdgeInsets.all(16),
               child: ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                  minimumSize: const Size.fromHeight(40),
+                ),
                 child: const Text('Update Settings'),
                 onPressed: () {
                   updateSettings();

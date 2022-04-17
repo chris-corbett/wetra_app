@@ -17,33 +17,60 @@ class UsersScreen extends StatefulWidget {
 
 List<LoginUser> userSource = [];
 
-Future<List<LoginUser>> getFullUsers() async {
-  String token = User.getUser().token;
-  final response = await http.get(
-    Uri.parse(ApiConst.api + 'users'),
-    headers: <String, String>{
+class _UsersScreenState extends State<UsersScreen> {
+  late List<LoginUser> _foundUsers;
+  late List<LoginUser> allUsers;
+
+  void _runFilter(String enteredSearch) {
+    List<LoginUser> results = [];
+    if (enteredSearch.isEmpty) {
+      results = allUsers;
+    } else {
+      results = allUsers
+          .where((user) =>
+              (user.firstName.toLowerCase() + ' ' + user.lastName.toLowerCase())
+                  .contains(enteredSearch.toLowerCase()))
+          .toList();
+    }
+
+    setState(() {
+      _foundUsers = results;
+    });
+  }
+
+  @override
+  void initState() {
+    getFullUsers();
+    super.initState();
+  }
+
+  Future<List<LoginUser>> getFullUsers() async {
+    String token = User.getUser().token;
+    final response = await http.get(
+      Uri.parse(ApiConst.api + 'users'),
+      headers: <String, String>{
+        'Accept': 'application/json',
+        'Authorization': 'Bearer $token',
+      },
+    );
+
+    List<LoginUser> users =
+        GetFullUser.fromJson(jsonDecode(response.body)).users;
+    allUsers = users;
+    return users;
+  }
+
+  Future<List<Group>> getGroups() async {
+    String token = User.getUser().token;
+    final response = await http
+        .get(Uri.parse(ApiConst.api + 'groups'), headers: <String, String>{
       'Accept': 'application/json',
       'Authorization': 'Bearer $token',
-    },
-  );
+    });
 
-  List<LoginUser> users = GetFullUser.fromJson(jsonDecode(response.body)).users;
+    return FullGroup.fromJson(jsonDecode(response.body)).groups;
+  }
 
-  return users;
-}
-
-Future<List<Group>> getGroups() async {
-  String token = User.getUser().token;
-  final response = await http
-      .get(Uri.parse(ApiConst.api + 'groups'), headers: <String, String>{
-    'Accept': 'application/json',
-    'Authorization': 'Bearer $token',
-  });
-
-  return FullGroup.fromJson(jsonDecode(response.body)).groups;
-}
-
-class _UsersScreenState extends State<UsersScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -58,80 +85,97 @@ class _UsersScreenState extends State<UsersScreen> {
           centerTitle: true,
           automaticallyImplyLeading: false,
         ),
-        body: FutureBuilder<List<dynamic>>(
-          future: Future.wait([getFullUsers(), getGroups()]),
-          builder: (context, AsyncSnapshot<List<dynamic>> snapshot) {
-            if (snapshot.connectionState == ConnectionState.waiting) {
-              return Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: const [
-                  Padding(
-                    padding: EdgeInsets.all(16),
-                    child: CircularProgressIndicator(),
-                  ),
-                  Padding(
-                    padding: EdgeInsets.all(16),
-                    child: Center(child: Text('Loading Users')),
-                  ),
-                ],
-              );
-            } else {
-              if (snapshot.hasError) {
-                return const Center(child: Text('Error loading users'));
-              } else {
-                List<LoginUser> users = snapshot.data![0];
-                List<Group> groups = snapshot.data![1];
-                return Center(
-                  child: ListView.separated(
-                      itemBuilder: (BuildContext context, int index) {
-                        String userGroup = users[index].groupId != 0 &&
-                                users[index].groupId != null
-                            ? groups
-                                .firstWhere((element) =>
-                                    element.id == users[index].groupId)
-                                .name
-                            : 'No Group';
-                        return InkWell(
-                          onTap: () {
-                            Navigator.push(context, MaterialPageRoute(
-                              builder: (context) {
-                                return ViewUserScreen(
-                                    user: users[index], groups: groups);
+        body: Column(
+          children: [
+            Padding(
+              padding: const EdgeInsets.all(16),
+              child: TextField(
+                onChanged: (value) => _runFilter(value),
+                decoration: const InputDecoration(
+                    labelText: 'Search', suffixIcon: Icon(Icons.search)),
+              ),
+            ),
+            // CODE for the ListView -------------------------------------------------------------------------
+            FutureBuilder<List<dynamic>>(
+              future: Future.wait([getFullUsers(), getGroups()]),
+              builder: (context, AsyncSnapshot<List<dynamic>> snapshot) {
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  return Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: const [
+                      Padding(
+                        padding: EdgeInsets.all(16),
+                        child: CircularProgressIndicator(),
+                      ),
+                      Padding(
+                        padding: EdgeInsets.all(16),
+                        child: Center(child: Text('Loading Users')),
+                      ),
+                    ],
+                  );
+                } else {
+                  if (snapshot.hasError) {
+                    return const Center(child: Text('Error loading users'));
+                  } else {
+                    allUsers = snapshot.data![0];
+                    List<Group> groups = snapshot.data![1];
+
+                    return Expanded(
+                      child: ListView.separated(
+                          itemBuilder: (BuildContext context, int index) {
+                            String userGroup =
+                                _foundUsers[index].groupId != 0 &&
+                                        _foundUsers[index].groupId != null
+                                    ? groups
+                                        .firstWhere((element) =>
+                                            element.id ==
+                                            _foundUsers[index].groupId)
+                                        .name
+                                    : 'No Group';
+                            return InkWell(
+                              onTap: () {
+                                Navigator.push(context, MaterialPageRoute(
+                                  builder: (context) {
+                                    return ViewUserScreen(
+                                        user: _foundUsers[index],
+                                        groups: groups);
+                                  },
+                                ));
                               },
-                            ));
-                          },
-                          child: Container(
-                            constraints: const BoxConstraints(
-                                maxHeight: double.infinity),
-                            color: Colors.white,
-                            child: Center(
-                              child: Padding(
-                                padding: const EdgeInsets.all(16),
-                                child: Column(
-                                  children: [
-                                    Text('Name: ' +
-                                        users[index].firstName +
-                                        ' ' +
-                                        users[index].lastName),
-                                    Text('Group: ' + userGroup),
-                                    Text('Status: ' +
-                                        (users[index].status == 0
-                                            ? 'Inactive'
-                                            : 'Active')),
-                                  ],
+                              child: Container(
+                                constraints: const BoxConstraints(
+                                    maxHeight: double.infinity),
+                                color: Colors.white,
+                                child: Center(
+                                  child: Padding(
+                                    padding: const EdgeInsets.all(16),
+                                    child: Column(
+                                      children: [
+                                        Text('Name: ' +
+                                            _foundUsers[index].firstName +
+                                            ' ' +
+                                            _foundUsers[index].lastName),
+                                        Text('Group: ' + userGroup),
+                                        Text('Status: ' +
+                                            (_foundUsers[index].status == 0
+                                                ? 'Inactive'
+                                                : 'Active')),
+                                      ],
+                                    ),
+                                  ),
                                 ),
                               ),
-                            ),
-                          ),
-                        );
-                      },
-                      separatorBuilder: (BuildContext context, int index) =>
-                          const Divider(),
-                      itemCount: users.length),
-                );
-              }
-            }
-          },
+                            );
+                          },
+                          separatorBuilder: (BuildContext context, int index) =>
+                              const Divider(),
+                          itemCount: _foundUsers.length),
+                    );
+                  }
+                }
+              },
+            )
+          ],
         ));
   }
 }
