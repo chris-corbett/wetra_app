@@ -18,25 +18,8 @@ class UsersScreen extends StatefulWidget {
 List<LoginUser> userSource = [];
 
 class _UsersScreenState extends State<UsersScreen> {
-  late List<LoginUser> _foundUsers;
-  late List<LoginUser> allUsers;
-
-  void _runFilter(String enteredSearch) {
-    List<LoginUser> results = [];
-    if (enteredSearch.isEmpty) {
-      results = allUsers;
-    } else {
-      results = allUsers
-          .where((user) =>
-              (user.firstName.toLowerCase() + ' ' + user.lastName.toLowerCase())
-                  .contains(enteredSearch.toLowerCase()))
-          .toList();
-    }
-
-    setState(() {
-      _foundUsers = results;
-    });
-  }
+  List<LoginUser> allUsers = [];
+  List<LoginUser> _foundUsers = [];
 
   @override
   void initState() {
@@ -69,6 +52,23 @@ class _UsersScreenState extends State<UsersScreen> {
     });
 
     return FullGroup.fromJson(jsonDecode(response.body)).groups;
+  }
+
+  void _runFilter(String enteredSearch) {
+    List<LoginUser> results = [];
+    if (enteredSearch.isEmpty) {
+      results = allUsers;
+    } else {
+      results = allUsers
+          .where((user) =>
+              (user.firstName.toLowerCase() + ' ' + user.lastName.toLowerCase())
+                  .contains(enteredSearch.toLowerCase()))
+          .toList();
+    }
+
+    setState(() {
+      _foundUsers = results;
+    });
   }
 
   @override
@@ -119,6 +119,11 @@ class _UsersScreenState extends State<UsersScreen> {
                   } else {
                     allUsers = snapshot.data![0];
                     List<Group> groups = snapshot.data![1];
+
+                    // Used to populate the _foundUsers the first time the screen is opened
+                    if (_foundUsers.isEmpty) {
+                      _foundUsers = allUsers;
+                    }
 
                     return Expanded(
                       child: ListView.separated(
