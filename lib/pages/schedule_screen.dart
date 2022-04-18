@@ -58,15 +58,47 @@ Future<List<Event>> getSchedules() async {
     Color tempColor = Color(int.parse(hexColor));
     Color tempTextColor = Color(int.parse(hexTextColor));
 
-    // Creates new event object and adds it to the schedule source list
-    scheduleSource.add(Event(
-        schedules[i].id,
-        schedules[i].title,
-        tempStart,
-        tempEnd,
-        tempColor,
-        tempTextColor,
-        schedules[i].allDay == 0 ? false : true));
+    var end = tempEnd;
+    //var start = tempStart;
+    var start =
+        DateTime(tempStart.year, tempStart.month, tempStart.day, 0, 0, 0);
+
+    if (end.difference(start) > const Duration(days: 1)) {
+      print('longer');
+      if (tempEnd.hour != 0) {
+        if (tempEnd.hour < 12) {
+          end = DateTime(tempEnd.year, tempEnd.month, tempEnd.day + 1,
+              12 - tempEnd.hour, 0, 0);
+        } else if (tempEnd.hour > 12) {
+          end = DateTime(tempEnd.year, tempEnd.month, tempEnd.day,
+              12 + tempEnd.hour, 0, 0);
+        }
+      }
+    }
+
+    var daysToGenerate = end.difference(start).inDays;
+    //print('test $daysToGenerate - start: ${tempStart.day} - end: ${tempEnd.day}');
+
+    if (daysToGenerate <= 1) {
+      // Creates new event object and adds it to the schedule source list
+      scheduleSource.add(Event(
+          schedules[i].id,
+          schedules[i].title,
+          tempStart,
+          tempEnd,
+          tempColor,
+          tempTextColor,
+          schedules[i].allDay == 0 ? false : true));
+    } else {
+      var days = List.generate(daysToGenerate,
+          (i) => DateTime(tempStart.year, tempStart.month, tempStart.day + i));
+
+      for (var day in days) {
+        // Creates new event object and adds it to the schedule source list
+        scheduleSource.add(Event(schedules[i].id, schedules[i].title, day, day,
+            tempColor, tempTextColor, schedules[i].allDay == 0 ? false : true));
+      }
+    }
   }
 
   return scheduleSource;
