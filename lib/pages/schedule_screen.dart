@@ -64,12 +64,11 @@ Future<List<Event>> getSchedules() async {
         DateTime(tempStart.year, tempStart.month, tempStart.day, 0, 0, 0);
 
     if (end.difference(start) > const Duration(days: 1)) {
-      print('longer');
       if (tempEnd.hour != 0) {
         if (tempEnd.hour < 12) {
           end = DateTime(tempEnd.year, tempEnd.month, tempEnd.day + 1,
               12 - tempEnd.hour, 0, 0);
-        } else if (tempEnd.hour > 12) {
+        } else if (tempEnd.hour >= 12) {
           end = DateTime(tempEnd.year, tempEnd.month, tempEnd.day,
               12 + tempEnd.hour, 0, 0);
         }
