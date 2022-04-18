@@ -57,20 +57,34 @@ class _ViewFileScreenState extends State<ViewFileScreen> {
       body: Center(
         child: Column(
           children: [
-            Text('File Name: ' + widget.file.fileName),
-            ElevatedButton(
-                onPressed: () {
-                  _launchUrl();
-                },
-                child: const Text('View File')),
-            Visibility(
+            Padding(
+              padding: const EdgeInsets.all(16),
+              child: Text('Filename: ' + widget.file.fileName),
+            ),
+            Padding(
+              padding: const EdgeInsets.all(16),
               child: ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                    minimumSize: const Size.fromHeight(40),
+                  ),
                   onPressed: () {
-                    _deleteFile();
+                    _launchUrl();
                   },
-                  child: const Text('Delete')),
+                  child: const Text('View File')),
+            ),
+            Visibility(
+              child: Padding(
+                  padding: const EdgeInsets.all(16),
+                  child: ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                        minimumSize: const Size.fromHeight(40),
+                      ),
+                      child: const Text('Delete'),
+                      onPressed: () {
+                        _deleteFile();
+                      })),
               visible: User.getUser().user.isAdmin == 0 ? false : true,
-            )
+            ),
           ],
         ),
       ),

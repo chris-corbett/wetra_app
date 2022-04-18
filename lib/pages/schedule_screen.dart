@@ -21,6 +21,7 @@ List<Event> events = [];
 
 // Called to get the events from the api and update the calendar.
 getEvents() async {
+  events.clear();
   events = await getSchedules();
 }
 
@@ -39,9 +40,6 @@ Future<List<Event>> getSchedules() async {
   // A list of all the events recieved from the api.
   List<Schedule> schedules =
       FullSchedule.fromJson(jsonDecode(response.body)).schedules;
-
-  // A list of the events to be added to the calendar.
-  //List<Event> scheduleSource = [];
 
   for (int i = 0; i < schedules.length; i++) {
     // Create temporary values to be used in the creation of the schedule source object
@@ -78,27 +76,25 @@ class _ScheduleScreenState extends State<ScheduleScreen>
     with WidgetsBindingObserver {
   bool isAdmin = User.getUser().user.isAdmin == 0 ? false : true;
 
-  // Code in this method will be called whenever the schedule screen is shown for the first time.
-  @override
-  void initState() {
-    WidgetsBinding.instance?.addObserver(this);
-    getEvents();
-    super.initState();
-  }
-
-  // Code in this method will be called whenever the schedule screen is brought back up.
-  @override
-  void didChangeAppLifecycleState(AppLifecycleState state) {
-    if (state == AppLifecycleState.resumed) {
-      getEvents();
-    }
-  }
-
   // Properties for the calendar
   DateTime _selectedDay = DateTime.now();
   DateTime _focusedDay = DateTime.now();
   CalendarFormat _calendarFormat = CalendarFormat.month;
   List<Event> _eventsForDay = [];
+
+  // Code in this method will be called whenever the schedule screen is shown for the first time.
+  @override
+  void initState() {
+    //WidgetsBinding.instance?.addObserver(this);
+    getEvents();
+    super.initState();
+  }
+
+  // Used to add the events to the calendar
+  List<Event> _getEventsForDay(DateTime day) {
+    var events = test();
+    return events[day] ?? [];
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -133,7 +129,9 @@ class _ScheduleScreenState extends State<ScheduleScreen>
               return isSameDay(_selectedDay, day);
             },
             onDaySelected: (selectedDay, focusedDay) {
-              _eventsForDay = _getEventsForDay(selectedDay);
+              _eventsForDay = events
+                  .where((event) => isSameDay(event.from, selectedDay))
+                  .toList(); //_getEventsForDay(selectedDay);
               setState(() {
                 _selectedDay = selectedDay;
                 _focusedDay = focusedDay;
@@ -147,9 +145,8 @@ class _ScheduleScreenState extends State<ScheduleScreen>
             onPageChanged: (focusedDay) {
               _focusedDay = focusedDay;
             },
-            eventLoader: (day) {
-              return _getEventsForDay(day);
-            },
+            eventLoader: (day) =>
+                events.where((event) => isSameDay(event.from, day)).toList(),
           ),
           Expanded(
             child: ListView.separated(
@@ -175,41 +172,30 @@ class _ScheduleScreenState extends State<ScheduleScreen>
   }
 }
 
-// Used to add the events to the calendar
-List<Event> _getEventsForDay(DateTime day) {
-  var events = test();
-  return events[day] ?? [];
-}
-
 LinkedHashMap<DateTime, List<Event>> test() {
   Map<DateTime, List<Event>> kEventSource = {};
 
   for (var element in (scheduleSource)) {
-    kEventSource[DateTime(
-      element.from.year,
-      element.from.month,
-      element.from.day,
-    )] = kEventSource[DateTime(
-              element.from.year,
-              element.from.month,
-              element.from.day,
-            )] !=
-            null
-        ? [
-            ...?kEventSource[DateTime(
-              element.from.year,
-              element.from.month,
-              element.from.day,
-            )],
-          ]
-        : [element];
+    var daysToGenerate = element.to.difference(element.from).inDays;
+    var days = List.generate(
+        daysToGenerate,
+        (i) => DateTime(
+            element.from.year, element.from.month, element.from.day + i));
+
+    for (var day in days) {
+      kEventSource[DateTime(day.year, day.month, day.day)] =
+          kEventSource[DateTime(day.year, day.month, day.day)] != null
+              ? [
+                  ...?kEventSource[DateTime(day.year, day.month, day.day)],
+                ]
+              : [element];
+    }
   }
 
   final kEvents = LinkedHashMap<DateTime, List<Event>>(
     equals: isSameDay,
     hashCode: getHashCode,
   )..addAll(kEventSource);
-
   return kEvents;
 }
 
