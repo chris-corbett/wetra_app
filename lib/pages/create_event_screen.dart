@@ -138,8 +138,6 @@ class _CreateEventScreenState extends State<CreateEventScreen> {
       'assigned_by': User.getUser().user.id.toString(),
       'is_group': shareIsChecked ? '1' : '0',
     });
-
-    print(response.body);
   }
 
   @override
