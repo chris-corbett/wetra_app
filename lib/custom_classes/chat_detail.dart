@@ -1,11 +1,13 @@
 class ChatDetailList {
-  final ChatDetail userChat;
+  final List<ChatDetail> chatList;
 
-  const ChatDetailList({required this.userChat});
+  const ChatDetailList({required this.chatList});
 
-  factory ChatDetailList.fromJson(Map<String, dynamic> parsedJson) {
-    return ChatDetailList(
-        userChat: ChatDetail.fromJson(parsedJson['chatLines']));
+  factory ChatDetailList.fromJson(List<dynamic> parsedJson) {
+    List<ChatDetail> chatList = [];
+    chatList = parsedJson.map((i) => ChatDetail.fromJson(i)).toList();
+
+    return ChatDetailList(chatList: chatList);
   }
 }
 

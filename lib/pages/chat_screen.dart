@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:wetra_app/custom_classes/api_const.dart';
+import 'package:wetra_app/custom_classes/chat_user.dart';
 import 'package:wetra_app/custom_classes/login_user.dart';
 import 'package:wetra_app/custom_classes/user.dart';
 import 'package:wetra_app/pages/chat_detail_screen.dart';
@@ -21,7 +22,7 @@ class _ChatScreenState extends State<ChatScreen> {
     super.initState();
   }
 
-  Future<List<LoginUser>> chatList() async {
+  Future<List<dynamic>> chatList() async {
     String token = User.getUser().token;
     final response = await http.post(
       // API URL
@@ -36,21 +37,8 @@ class _ChatScreenState extends State<ChatScreen> {
     );
 
     if (response.statusCode == 200) {
-      // Map<String, dynamic> data =
-      //     Map<String, dynamic>.from(json.decode(response.body));
-      // if (data.isNotEmpty) {
-      //   for (int i = 0; i < data.length; i++) {
-      //     if (data['$i'] != null) {
-      //       Map<String, dynamic> map = data['$i'];
-      //       //print(ChatUser.fromJson(map).firstName);
-      //       chatUsers.add(ChatUser.fromJson(map));
-      //     }
-      //   }
-      // }
-      List<LoginUser> chatUsers =
-          GetFullUser.fromJson(jsonDecode(response.body)).users;
-      // print(data.length);
-      return chatUsers;
+      List data = json.decode(response.body);
+      return data.map((job) => ChatUser.fromJson(job)).toList();
     } else {
       throw Exception('Failed to load users');
     }
@@ -58,7 +46,6 @@ class _ChatScreenState extends State<ChatScreen> {
 
   @override
   Widget build(BuildContext context) {
-    // ChattedUser info = ChattedUser.fromJson(data);
     return Scaffold(
       appBar: AppBar(
         title: const Text("Chat"),
@@ -75,57 +62,36 @@ class _ChatScreenState extends State<ChatScreen> {
           ),
         ],
       ),
-      body: Center(
-        child: FutureBuilder<List<LoginUser>>(
-          future: chatList(),
-          builder: (context, snapshot) {
-            if (snapshot.connectionState == ConnectionState.waiting) {
-              return Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: const [
-                  Padding(
-                    padding: EdgeInsets.all(16),
-                    child: CircularProgressIndicator(),
-                  ),
-                  Padding(
-                    padding: EdgeInsets.all(16),
-                    child: Center(child: Text('Loading Chat')),
-                  ),
-                ],
-              );
-            } else {
-              if (snapshot.hasError) {
-                return Text("${snapshot.error}");
-              } else {
-                return Center(
-                    child: ListView.separated(
-                  itemBuilder: (BuildContext context, int index) {
-                    return InkWell(
-                      onTap: () {
-                        Navigator.push(context,
-                            MaterialPageRoute(builder: (context) {
-                          return ChatDetailScreen(chat: snapshot.data![index]);
-                        }));
-                      },
-                      child: Container(
-                        height: 50,
-                        color: Colors.white,
-                        child: Center(
-                          child: Text(snapshot.data![index].firstName +
-                              ' ' +
-                              snapshot.data![index].lastName),
-                        ),
-                      ),
-                    );
-                  },
-                  separatorBuilder: (BuildContext context, int index) =>
-                      const Divider(),
-                  itemCount: snapshot.data!.length,
-                ));
-              }
-            }
-          },
-        ),
+      body: FutureBuilder<List<dynamic>>(
+        future: chatList(),
+        builder: (context, snapshot) {
+          if (snapshot.hasData) {
+            List? data = snapshot.data;
+            return ListView.builder(
+                itemCount: data?.length,
+                shrinkWrap: true,
+                itemBuilder: (BuildContext context, int index) {
+                  return Card(
+                      color: const Color.fromRGBO(255, 171, 145, 1),
+                      child: ListTile(
+                          title: Text(data![index].firstName),
+                          leading: const SizedBox(
+                            width: 50,
+                            height: 50,
+                            // child: Image.network(data[index].background),
+                          ),
+                          onTap: () {
+                            Navigator.of(context).push(MaterialPageRoute(
+                                builder: (context) => ChatDetailScreen(
+                                      chat: data[index],
+                                    )));
+                          }));
+                });
+          } else if (snapshot.hasError) {
+            return Text("${snapshot.error}");
+          }
+          return const Center(child: Text("Loading..."));
+        },
       ),
     );
   }
