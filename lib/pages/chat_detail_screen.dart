@@ -12,31 +12,23 @@ class ChatDetailScreen extends StatelessWidget {
   final List<ChatDetail> chatUsers = [];
   ChatDetailScreen({Key? key, required this.chat}) : super(key: key);
 
-  late final String chatID;
-  late final int userID = User.getUser().user.id;
+  late final int selectedID = chat.id;
   late final String token = User.getUser().token;
-  final List<ChatDetail> messages = [];
+  late final int userID = User.getUser().user.id;
   final messageText = TextEditingController();
 
-  List<ChatLines> msg = [];
-  List<ChatLines> msgSource = [];
-  List<ChatLines> msgList = [];
+  late List data = [];
 
-  getMessage() async {
-    msg = await chatDetailList();
-  }
-
-  @override
-  void initState() {
-    //super.initState();
-    getMessage();
-  }
-
-  @override
-  void didChangeAppLifecycleState(AppLifecycleState state) {
-    if (state == AppLifecycleState.resumed) {
-      getMessage();
-    }
+  void addTaskAndAmount(String msgTxt, int sID, int rID) {
+    final expense = ChatDetail(
+        id: 1111,
+        lineText: msgTxt,
+        senderId: sID,
+        receiverId: rID,
+        imageUrl: null,
+        isRead: 0);
+    data.add(expense);
+    //print(expense)
   }
 
   @override
@@ -45,9 +37,9 @@ class ChatDetailScreen extends StatelessWidget {
     //super.dispose();
   }
 
-  Future<List<ChatLines>> chatDetailList() async {
-    print(userID);
-    print(chat.id);
+  Future<List<ChatDetail>> chatDetailList() async {
+    //print(selectedID);
+    //print(token);
     final response = await http.post(
       // API URL
       Uri.parse(ApiConst.api + 'messages/chat'),
@@ -58,23 +50,17 @@ class ChatDetailScreen extends StatelessWidget {
         'Content-Type': 'application/x-www-form-urlencoded',
       },
       // Encoding for the body
-      body: {'selectedUser': userID},
+      body: {'selectedUser': '$selectedID'},
       encoding: Encoding.getByName('utf-8'),
     );
 
-    List<ChatDetail> chats =
-        ChatDetailList.fromJson(jsonDecode(response.body)).chatList;
-
-    for (int i = 0; i < chats.length; i++) {
-      int senderText = chats[i].senderId;
-      int receiverText = chats[i].receiverId;
-      String lineText = chats[i].lineText;
-      print(lineText);
-
-      msgSource.add(ChatLines(chats[i].id, senderText, receiverText, lineText));
+    if (response.statusCode == 200) {
+      data = json.decode(response.body);
+      print("MSG: $data");
+      return data.map((job) => ChatDetail.fromJson(job)).toList();
+    } else {
+      throw Exception('Failed to load messages');
     }
-
-    return msgSource;
   }
 
   @override
@@ -92,46 +78,46 @@ class ChatDetailScreen extends StatelessWidget {
         body: Column(
           children: [
             Expanded(
-                child: ListView.separated(
-              itemCount: msgList.length,
-              itemBuilder: (BuildContext context, int index) {
-                return Container(
-                  height: 25,
-                  child: Center(child: Text(msgList[index].textLine)),
-                );
+                child: FutureBuilder<List<ChatDetail>>(
+              future: chatDetailList(),
+              builder: (context, snapshot) {
+                if (snapshot.hasData) {
+                  List<ChatDetail>? data = snapshot.data;
+                  return ListView.builder(
+                      itemCount: data?.length,
+                      padding: const EdgeInsets.only(top: 10, bottom: 10),
+                      physics: const NeverScrollableScrollPhysics(),
+                      shrinkWrap: true,
+                      itemBuilder: (BuildContext context, int index) {
+                        return Container(
+                          padding: const EdgeInsets.only(
+                              left: 14, right: 14, top: 10, bottom: 10),
+                          child: Align(
+                            alignment: (data![index].senderId == selectedID
+                                ? Alignment.topLeft
+                                : Alignment.topRight),
+                            child: Container(
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(20),
+                                color: (data[index].senderId == selectedID
+                                    ? const Color.fromARGB(255, 241, 119, 153)
+                                    : const Color.fromRGBO(255, 171, 145, 1)),
+                              ),
+                              padding: const EdgeInsets.all(16),
+                              child: Text(
+                                data[index].lineText,
+                                style: const TextStyle(fontSize: 15),
+                              ),
+                            ),
+                          ),
+                        );
+                      });
+                } else if (snapshot.hasError) {
+                  return Text("${snapshot.error}");
+                }
+                return const Center(child: Text("Loading..."));
               },
-              separatorBuilder: (BuildContext context, int index) =>
-                  const Divider(),
-            )
-
-                //     FutureBuilder<List<ChatDetail>>(
-                //   future: chatDetailList(),
-                //   builder: (context, snapshot) {
-                //     if (snapshot.hasData) {
-                //       List<ChatDetail>? data = snapshot.data;
-                //       return ListView.builder(
-                //           itemCount: data?.length,
-                //           shrinkWrap: true,
-                //           itemBuilder: (BuildContext context, int index) {
-                //             return Card(
-                //                 color: Colors.deepOrange[200],
-                //                 child: ListTile(
-                //                   title: Text(data![index].lineText),
-                //                   leading: const SizedBox(
-                //                     width: 50,
-                //                     height: 50,
-                //                     // child: Image.network(data[index].background),
-                //                   ),
-                //                 ));
-                //           });
-                //     } else if (snapshot.hasError) {
-                //       return Text("${snapshot.error}");
-                //     }
-                //     return const CircularProgressIndicator();
-                //   },
-                // )
-
-                ),
+            )),
             Stack(
               alignment: Alignment.bottomRight,
               children: <Widget>[
@@ -160,7 +146,9 @@ class ChatDetailScreen extends StatelessWidget {
                         ),
                         FloatingActionButton(
                           onPressed: () {
-                            //   messages.add();
+                            addTaskAndAmount(
+                                messageText.text, userID, selectedID);
+                            print(data);
                           },
                           child: const Icon(
                             Icons.send,
@@ -179,40 +167,6 @@ class ChatDetailScreen extends StatelessWidget {
           ],
         ));
   }
-}
 
-// Center(
-//         child: FutureBuilder<List<ChatDetail>>(
-//           builder: (context, snapshot) {
-//             if (snapshot.hasData) {
-//               List<ChatDetail>? data = snapshot.data;
-//               return ListView.builder(
-//                   itemCount: data?.length,
-//                   shrinkWrap: true,
-//                   itemBuilder: (BuildContext context, int index) {
-//                     return Card(
-//                         color: Colors.deepOrange[200],
-//                         child: ListTile(
-//                           title: Text(data![index].lineText),
-//                           leading: const SizedBox(
-//                             width: 50,
-//                             height: 50,
-//                             // child: Image.network(data[index].background),
-//                           ),
-//                         ));
-//                   });
-//             } else if (snapshot.hasError) {
-//               return Text("${snapshot.error}");
-//             }
-//             return const CircularProgressIndicator();
-//           },
-//         ),
-//       ),
-class ChatLines {
-  int id;
-  int sender;
-  int receiver;
-  String textLine;
-
-  ChatLines(this.id, this.sender, this.receiver, this.textLine);
+  void setState(Null Function() param0) {}
 }
