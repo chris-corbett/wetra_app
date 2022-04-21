@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:wetra_app/custom_classes/api_const.dart';
+import 'package:wetra_app/custom_classes/chat_user.dart';
 import 'package:wetra_app/custom_classes/login_user.dart';
 import 'dart:convert';
 import 'chat_detail_screen.dart';
@@ -19,7 +20,7 @@ class _ChatUserListState extends State<ChatUserList> {
     userList();
   }
 
-  Future<List<LoginUser>> userList() async {
+  Future<List<ChatUser>> userList() async {
     final response = await http.post(
       // API URL
       Uri.parse(ApiConst.api + 'users/all'),
@@ -33,9 +34,8 @@ class _ChatUserListState extends State<ChatUserList> {
     );
 
     if (response.statusCode == 200) {
-      List<LoginUser> chatUsers =
-          GetFullUser.fromJson(jsonDecode(response.body)).users;
-      return chatUsers;
+      List jsonResponse = json.decode(response.body);
+      return jsonResponse.map((data) => ChatUser.fromJson(data)).toList();
     } else {
       throw Exception('Failed to load users');
     }
@@ -59,7 +59,7 @@ class _ChatUserListState extends State<ChatUserList> {
         ],
       ),
       body: Center(
-        child: FutureBuilder<List<LoginUser>>(
+        child: FutureBuilder<List<ChatUser>>(
           future: userList(),
           builder: (context, snapshot) {
             if (snapshot.hasData) {

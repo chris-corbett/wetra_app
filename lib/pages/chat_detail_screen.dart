@@ -8,7 +8,7 @@ import 'package:wetra_app/custom_classes/login_user.dart';
 import 'package:wetra_app/custom_classes/user.dart';
 
 class ChatDetailScreen extends StatelessWidget {
-  final LoginUser chat;
+  final ChatUser chat;
   final List<ChatDetail> chatUsers = [];
   ChatDetailScreen({Key? key, required this.chat}) : super(key: key);
 
