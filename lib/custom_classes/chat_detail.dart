@@ -16,8 +16,6 @@ class ChatDetail {
   final String lineText;
   final int senderId;
   final int receiverId;
-  final String createdAt;
-  final String updatedAt;
   final String? imageUrl;
   final int isRead;
 
@@ -26,8 +24,6 @@ class ChatDetail {
       required this.lineText,
       required this.senderId,
       required this.receiverId,
-      required this.createdAt,
-      required this.updatedAt,
       this.imageUrl,
       required this.isRead});
 
@@ -37,8 +33,6 @@ class ChatDetail {
       lineText: json['line_text'],
       senderId: json['sender_id'],
       receiverId: json['receiver_id'],
-      createdAt: json['created_at'],
-      updatedAt: json['updated_at'],
       imageUrl: json['image_url'],
       isRead: json['is_read'],
     );
