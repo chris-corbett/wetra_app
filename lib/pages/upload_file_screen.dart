@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'dart:io';
+import 'package:dio/dio.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
@@ -67,18 +68,29 @@ class _UploadFileScreenState extends State<UploadFileScreen> {
     }
   }
 
-  uploadFile() {
+  uploadFile() async {
     String token = User.getUser().token;
-    // File file = File(result.files.single.path!);
-
-    final request =
-        http.MultipartRequest('POST', Uri.parse(ApiConst.api + 'files'));
-    request.fields['shared_to'] = '0';
-
-    request.files.add(http.MultipartFile.fromString('file', chosenFile.path));
-    request.send().then((response) {
-      print(response.statusCode);
+    var dio = Dio();
+    var formData = FormData.fromMap({
+      'file': await MultipartFile.fromFile(chosenFile.path,
+          filename: chosenFile.uri.pathSegments.last),
+      'shared_to': '0',
     });
+
+    final response =
+        await dio.post('https://wyibulayin.scweb.ca/wetra/api/files',
+            options: Options(
+                headers: {
+                  'Content-Type': 'multipart/form-data',
+                  'Accept': 'application/json',
+                  'Accept-Encoding': 'application/gzip',
+                  'Authorization': 'Bearer $token',
+                },
+                followRedirects: false,
+                validateStatus: (status) {
+                  return status! < 500;
+                }),
+            data: formData);
   }
 
   Future<List<Group>> getGroups() async {

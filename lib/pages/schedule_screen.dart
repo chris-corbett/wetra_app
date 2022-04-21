@@ -152,14 +152,14 @@ class _ScheduleScreenState extends State<ScheduleScreen>
     super.initState();
   }
 
-  @override
-  void didChangeAppLifecycleState(AppLifecycleState state) {
-    if (state == AppLifecycleState.resumed) {
-      setState(() {
-        getEvents();
-      });
-    }
-  }
+  // @override
+  // void didChangeAppLifecycleState(AppLifecycleState state) {
+  //   if (state == AppLifecycleState.resumed) {
+  //     setState(() {
+  //       getEvents();
+  //     });
+  //   }
+  // }
 
   @override
   Widget build(BuildContext context) {
