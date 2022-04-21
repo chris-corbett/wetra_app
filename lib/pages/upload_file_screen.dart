@@ -110,157 +110,166 @@ class _UploadFileScreenState extends State<UploadFileScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        appBar: AppBar(
-          leading: IconButton(
-            icon: const Icon(Icons.arrow_back, color: Colors.white),
-            onPressed: () => Navigator.of(context).pop(),
-          ),
-          title: const Text('Upload File'),
-          centerTitle: true,
-          automaticallyImplyLeading: false,
+      appBar: AppBar(
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back, color: Colors.white),
+          onPressed: () => Navigator.of(context).pop(),
         ),
-        body: Column(
-          children: <Widget>[
-            Padding(
-              padding: const EdgeInsets.all(16),
-              child: Text('Filename: $fileName'),
-            ),
-            Padding(
-              padding: const EdgeInsets.all(16),
-              child: ElevatedButton(
-                style: ElevatedButton.styleFrom(
-                  minimumSize: const Size.fromHeight(40),
+        title: const Text('Upload File'),
+        centerTitle: true,
+        automaticallyImplyLeading: false,
+      ),
+      body: Scrollbar(
+        child: Align(
+          alignment: Alignment.topCenter,
+          child: SingleChildScrollView(
+            child: Column(
+              children: <Widget>[
+                Padding(
+                  padding: const EdgeInsets.all(16),
+                  child: Text('Filename: $fileName'),
                 ),
-                child: const Text('Choose a file'),
-                onPressed: () {
-                  _pickFile();
-                },
-              ),
-            ),
-            Padding(
-              padding: const EdgeInsets.all(16),
-              child: TextFormField(
-                  controller: descriptionController,
-                  decoration: const InputDecoration(
-                    hintText: 'File Description',
-                    labelText: 'File Description',
-                  )),
-            ),
-            CheckboxListTile(
-              title: const Text('Share to group'),
-              value: shareIsChecked,
-              onChanged: (bool? value) {
-                setState(() {
-                  shareIsChecked = value!;
-                });
-              },
-            ),
-            Visibility(
-              visible: shareIsChecked,
-              child: Padding(
-                padding: const EdgeInsets.all(16),
-                child: Row(
-                  children: [
-                    const Text('Group:'),
-                    const SizedBox(width: 15),
-                    FutureBuilder<List<Group>>(
-                      future: getGroups(),
-                      builder: (context, snapshot) {
-                        if (snapshot.connectionState ==
-                            ConnectionState.waiting) {
-                          return const Center(child: Text('Loading groups'));
-                        } else {
-                          if (snapshot.hasError) {
-                            return const Center(
-                                child: Text('Error loading groups'));
-                          } else {
-                            if (groups.length == 1) {
-                              groups.addAll(snapshot.data!);
-                            }
-
-                            return DropdownButton<Group>(
-                              value: groupDropdownValue,
-                              items: groups
-                                  .map<DropdownMenuItem<Group>>((Group group) {
-                                return DropdownMenuItem<Group>(
-                                  value: group,
-                                  child: Text(group.name),
-                                );
-                              }).toList(),
-                              onChanged: (Group? newValue) {
-                                setState(() {
-                                  groupDropdownValue = newValue!;
-                                });
-                              },
-                            );
-                          }
-                        }
-                      },
+                Padding(
+                  padding: const EdgeInsets.all(16),
+                  child: ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                      minimumSize: const Size.fromHeight(40),
                     ),
-                  ],
+                    child: const Text('Choose a file'),
+                    onPressed: () {
+                      _pickFile();
+                    },
+                  ),
                 ),
-              ),
-            ),
-            Visibility(
-              visible: !shareIsChecked,
-              child: Padding(
-                padding: const EdgeInsets.all(16),
-                child: Row(
-                  children: [
-                    const Text('User:'),
-                    const SizedBox(width: 15),
-                    FutureBuilder<List<LoginUser>>(
-                      future: getFullUsers(),
-                      builder: (context, snapshot) {
-                        if (snapshot.connectionState ==
-                            ConnectionState.waiting) {
-                          return const Center(child: Text('Loading users'));
-                        } else {
-                          if (snapshot.hasError) {
-                            return const Center(
-                                child: Text('Error loading users'));
-                          } else {
-                            if (users.length == 1) {
-                              users.addAll(snapshot.data!);
-                            }
+                Padding(
+                  padding: const EdgeInsets.all(16),
+                  child: TextFormField(
+                      controller: descriptionController,
+                      decoration: const InputDecoration(
+                        hintText: 'File Description',
+                        labelText: 'File Description',
+                      )),
+                ),
+                CheckboxListTile(
+                  title: const Text('Share to group'),
+                  value: shareIsChecked,
+                  onChanged: (bool? value) {
+                    setState(() {
+                      shareIsChecked = value!;
+                    });
+                  },
+                ),
+                Visibility(
+                  visible: shareIsChecked,
+                  child: Padding(
+                    padding: const EdgeInsets.all(16),
+                    child: Row(
+                      children: [
+                        const Text('Group:'),
+                        const SizedBox(width: 15),
+                        FutureBuilder<List<Group>>(
+                          future: getGroups(),
+                          builder: (context, snapshot) {
+                            if (snapshot.connectionState ==
+                                ConnectionState.waiting) {
+                              return const Center(
+                                  child: Text('Loading groups'));
+                            } else {
+                              if (snapshot.hasError) {
+                                return const Center(
+                                    child: Text('Error loading groups'));
+                              } else {
+                                if (groups.length == 1) {
+                                  groups.addAll(snapshot.data!);
+                                }
 
-                            return DropdownButton<LoginUser>(
-                              value: userDropdownValue,
-                              items: users.map<DropdownMenuItem<LoginUser>>(
-                                  (LoginUser user) {
-                                return DropdownMenuItem<LoginUser>(
-                                  value: user,
-                                  child: Text(
-                                      user.firstName + ' ' + user.lastName),
+                                return DropdownButton<Group>(
+                                  value: groupDropdownValue,
+                                  items: groups.map<DropdownMenuItem<Group>>(
+                                      (Group group) {
+                                    return DropdownMenuItem<Group>(
+                                      value: group,
+                                      child: Text(group.name),
+                                    );
+                                  }).toList(),
+                                  onChanged: (Group? newValue) {
+                                    setState(() {
+                                      groupDropdownValue = newValue!;
+                                    });
+                                  },
                                 );
-                              }).toList(),
-                              onChanged: (LoginUser? newValue) {
-                                setState(() {
-                                  userDropdownValue = newValue!;
-                                });
-                              },
-                            );
-                          }
-                        }
-                      },
+                              }
+                            }
+                          },
+                        ),
+                      ],
                     ),
-                  ],
+                  ),
                 ),
-              ),
-            ),
-            Padding(
-              padding: const EdgeInsets.all(16),
-              child: ElevatedButton(
-                style: ElevatedButton.styleFrom(
-                  minimumSize: const Size.fromHeight(40),
+                Visibility(
+                  visible: !shareIsChecked,
+                  child: Padding(
+                    padding: const EdgeInsets.all(16),
+                    child: Row(
+                      children: [
+                        const Text('User:'),
+                        const SizedBox(width: 15),
+                        FutureBuilder<List<LoginUser>>(
+                          future: getFullUsers(),
+                          builder: (context, snapshot) {
+                            if (snapshot.connectionState ==
+                                ConnectionState.waiting) {
+                              return const Center(child: Text('Loading users'));
+                            } else {
+                              if (snapshot.hasError) {
+                                return const Center(
+                                    child: Text('Error loading users'));
+                              } else {
+                                if (users.length == 1) {
+                                  users.addAll(snapshot.data!);
+                                }
+
+                                return DropdownButton<LoginUser>(
+                                  value: userDropdownValue,
+                                  items: users.map<DropdownMenuItem<LoginUser>>(
+                                      (LoginUser user) {
+                                    return DropdownMenuItem<LoginUser>(
+                                      value: user,
+                                      child: Text(
+                                          user.firstName + ' ' + user.lastName),
+                                    );
+                                  }).toList(),
+                                  onChanged: (LoginUser? newValue) {
+                                    setState(() {
+                                      userDropdownValue = newValue!;
+                                    });
+                                  },
+                                );
+                              }
+                            }
+                          },
+                        ),
+                      ],
+                    ),
+                  ),
                 ),
-                child: const Text('Upload file'),
-                onPressed: () {
-                  uploadFile();
-                },
-              ),
+                Padding(
+                  padding: const EdgeInsets.all(16),
+                  child: ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                      minimumSize: const Size.fromHeight(40),
+                    ),
+                    child: const Text('Upload file'),
+                    onPressed: () {
+                      uploadFile();
+                    },
+                  ),
+                ),
+              ],
             ),
-          ],
-        ));
+          ),
+        ),
+      ),
+    );
   }
 }

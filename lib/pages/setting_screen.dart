@@ -213,7 +213,12 @@ class _SettingScreenState extends State<SettingScreen> {
                             user.groupId != 0 && user.groupId != null
                                 ? snapshot.data!
                                     .firstWhere(
-                                        (element) => element.id == user.groupId)
+                                        (element) => element.id == user.groupId,
+                                        orElse: () => const Group(
+                                            id: 0,
+                                            name: 'No Group',
+                                            createdAt: '',
+                                            updatadAt: ''))
                                     .name
                                 : '';
                         return TextFormField(

@@ -58,6 +58,53 @@ class _ViewScheduleScreen extends State<ViewScheduleScreen> {
         });
   }
 
+  markComplete() async {
+    String token = User.getUser().token;
+    final response = await http.put(
+        Uri.parse(ApiConst.api + 'schedules/update'),
+        headers: <String, String>{
+          'Accept': 'application/json',
+          'Authorization': 'Bearer $token',
+          'Content-Type': 'application/x-www-form-urlencoded'
+        },
+        body: {
+          'id': widget.event.id.toString(),
+          'taskStatus': 'completed',
+        });
+  }
+
+  requestTimeOff() async {
+    String token = User.getUser().token;
+    final response = await http.put(
+        Uri.parse(ApiConst.api + 'schedules/update'),
+        headers: <String, String>{
+          'Accept': 'application/json',
+          'Authorization': 'Bearer $token',
+          'Content-Type': 'application/x-www-form-urlencoded'
+        },
+        body: {
+          'id': widget.event.id.toString(),
+          'taskStatus': 'requestTimeOff',
+        });
+
+    print(response.body);
+  }
+
+  confirmTimeOff(String confirm) async {
+    String token = User.getUser().token;
+    final response = await http.put(
+        Uri.parse(ApiConst.api + 'schedules/update'),
+        headers: <String, String>{
+          'Accept': 'application/json',
+          'Authorization': 'Bearer $token',
+          'Content-Type': 'application/x-www-form-urlencoded'
+        },
+        body: {
+          'id': widget.event.id.toString(),
+          'taskStatus': confirm,
+        });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -91,6 +138,12 @@ class _ViewScheduleScreen extends State<ViewScheduleScreen> {
                   ),
                 ),
                 Padding(
+                    padding: const EdgeInsets.all(16),
+                    child: Text('Start Time: ${widget.event.from}')),
+                Padding(
+                    padding: const EdgeInsets.all(16),
+                    child: Text('End Time: ${widget.event.to}')),
+                Padding(
                   padding: const EdgeInsets.all(16),
                   child: FutureBuilder<List<dynamic>>(
                     future: Future.wait([getFullUsers(), getGroups()]),
@@ -121,6 +174,90 @@ class _ViewScheduleScreen extends State<ViewScheduleScreen> {
                         }
                       }
                     },
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.all(16),
+                  child: Text(
+                      'Completed: ${widget.event.isComplete == 0 ? 'false' : 'true'}'),
+                ),
+                Visibility(
+                  visible: widget.event.scheduleType == 'task' &&
+                          widget.event.isComplete == 0 &&
+                          User.getUser().user.isAdmin == 1 ||
+                      User.getUser().user.id == widget.event.assignedTo ||
+                      widget.event.assignedTo == 0,
+                  child: Padding(
+                    padding: const EdgeInsets.all(16),
+                    child: ElevatedButton(
+                        style: ElevatedButton.styleFrom(
+                          minimumSize: const Size.fromHeight(40),
+                        ),
+                        child: const Text('Mark Complete'),
+                        onPressed: () {
+                          setState(() {
+                            markComplete();
+                            widget.event.isComplete = 1;
+                          });
+                        }),
+                  ),
+                ),
+                Visibility(
+                  visible:
+                      widget.event.requestTimeOffId == User.getUser().user.id &&
+                          widget.event.confirmTimeOffId == 0,
+                  child: const Padding(
+                    padding: EdgeInsets.all(16),
+                    child: Text('Requested Time Off'),
+                  ),
+                ),
+                Visibility(
+                  visible:
+                      widget.event.requestTimeOffId == User.getUser().user.id &&
+                          widget.event.confirmTimeOffId != 0,
+                  child: const Padding(
+                    padding: EdgeInsets.all(16),
+                    child: Text('Time Off Approved'),
+                  ),
+                ),
+                Visibility(
+                  visible: User.getUser().user.id == widget.event.assignedTo &&
+                      widget.event.requestTimeOffId == 0 &&
+                      widget.event.confirmTimeOffId == 0,
+                  child: Padding(
+                    padding: const EdgeInsets.all(16),
+                    child: ElevatedButton(
+                        style: ElevatedButton.styleFrom(
+                          minimumSize: const Size.fromHeight(40),
+                        ),
+                        child: const Text('Request Time Off'),
+                        onPressed: () {
+                          setState(() {
+                            requestTimeOff();
+                            widget.event.requestTimeOffId =
+                                User.getUser().user.id;
+                          });
+                        }),
+                  ),
+                ),
+                Visibility(
+                  visible: User.getUser().user.isAdmin == 1 &&
+                      widget.event.requestTimeOffId != 0 &&
+                      widget.event.confirmTimeOffId == 0,
+                  child: Padding(
+                    padding: const EdgeInsets.all(16),
+                    child: ElevatedButton(
+                        style: ElevatedButton.styleFrom(
+                          minimumSize: const Size.fromHeight(40),
+                        ),
+                        child: const Text('Confirm Time Off'),
+                        onPressed: () {
+                          setState(() {
+                            confirmTimeOff('confirmTimeOff');
+                            widget.event.confirmTimeOffId =
+                                User.getUser().user.id;
+                          });
+                        }),
                   ),
                 ),
                 Visibility(

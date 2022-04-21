@@ -131,9 +131,16 @@ class _UsersScreenState extends State<UsersScreen> {
                                 _foundUsers[index].groupId != 0 &&
                                         _foundUsers[index].groupId != null
                                     ? groups
-                                        .firstWhere((element) =>
-                                            element.id ==
-                                            _foundUsers[index].groupId)
+                                        .firstWhere(
+                                          (element) =>
+                                              element.id ==
+                                              _foundUsers[index].groupId,
+                                          orElse: () => const Group(
+                                              id: 0,
+                                              name: 'No Group',
+                                              createdAt: '',
+                                              updatadAt: ''),
+                                        )
                                         .name
                                     : 'No Group';
                             return InkWell(
