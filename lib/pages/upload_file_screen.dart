@@ -30,6 +30,7 @@ List<Group> groups = [
 ];
 Group groupDropdownValue = groups.first;
 LoginUser userDropdownValue = users.first;
+late File chosenFile;
 
 class _UploadFileScreenState extends State<UploadFileScreen> {
   final TextEditingController descriptionController = TextEditingController();
@@ -59,6 +60,7 @@ class _UploadFileScreenState extends State<UploadFileScreen> {
         fileName = file.uri.pathSegments.last;
       });
 
+      chosenFile = file;
       return file;
     } else {
       return File('');
@@ -66,16 +68,17 @@ class _UploadFileScreenState extends State<UploadFileScreen> {
   }
 
   uploadFile() {
-    // String token = User.getUser().token;
+    String token = User.getUser().token;
     // File file = File(result.files.single.path!);
 
-    // final request =
-    //     http.MultipartRequest('POST', Uri.parse(ApiConst.api + 'files'));
-    // request.fields['group_id'] = '0';
-    // request.files.add(http.MultipartFile.fromString('file', file.path));
-    // request.send().then((response) {
-    //   print(response.statusCode);
-    // });
+    final request =
+        http.MultipartRequest('POST', Uri.parse(ApiConst.api + 'files'));
+    request.fields['shared_to'] = '0';
+
+    request.files.add(http.MultipartFile.fromString('file', chosenFile.path));
+    request.send().then((response) {
+      print(response.statusCode);
+    });
   }
 
   Future<List<Group>> getGroups() async {
@@ -243,6 +246,18 @@ class _UploadFileScreenState extends State<UploadFileScreen> {
                     ),
                   ],
                 ),
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.all(16),
+              child: ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                  minimumSize: const Size.fromHeight(40),
+                ),
+                child: const Text('Upload file'),
+                onPressed: () {
+                  uploadFile();
+                },
               ),
             ),
           ],
