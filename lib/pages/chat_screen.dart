@@ -3,7 +3,6 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:wetra_app/custom_classes/api_const.dart';
 import 'package:wetra_app/custom_classes/chat_user.dart';
-import 'package:wetra_app/custom_classes/login_user.dart';
 import 'package:wetra_app/custom_classes/user.dart';
 import 'package:wetra_app/pages/chat_detail_screen.dart';
 import 'package:http/http.dart' as http;
@@ -74,7 +73,9 @@ class _ChatScreenState extends State<ChatScreen> {
                   return Card(
                       color: const Color.fromRGBO(255, 171, 145, 1),
                       child: ListTile(
-                          title: Text(data![index].firstName),
+                          title: Text(data![index].firstName +
+                              ' ' +
+                              data[index].lastName),
                           leading: const SizedBox(
                             width: 50,
                             height: 50,

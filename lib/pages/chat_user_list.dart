@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:wetra_app/custom_classes/api_const.dart';
 import 'package:wetra_app/custom_classes/chat_user.dart';
-import 'package:wetra_app/custom_classes/login_user.dart';
 import 'dart:convert';
 import 'chat_detail_screen.dart';
 
@@ -70,7 +69,9 @@ class _ChatUserListState extends State<ChatUserList> {
                     return Card(
                         color: Colors.deepOrange[200],
                         child: ListTile(
-                            title: Text(snapshot.data![index].firstName),
+                            title: Text(snapshot.data![index].firstName +
+                                ' ' +
+                                snapshot.data![index].lastName),
                             leading: const SizedBox(
                               width: 50,
                               height: 50,
