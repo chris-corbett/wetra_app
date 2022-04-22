@@ -56,6 +56,10 @@ class _ViewScheduleScreen extends State<ViewScheduleScreen> {
           'id': widget.event.id.toString(),
           'scheduleType': widget.event.scheduleType,
         });
+
+    if (response.statusCode != 200) {
+      throw Exception('Failed to send messages');
+    }
   }
 
   markComplete() async {
@@ -71,6 +75,10 @@ class _ViewScheduleScreen extends State<ViewScheduleScreen> {
           'id': widget.event.id.toString(),
           'taskStatus': 'completed',
         });
+
+    if (response.statusCode != 200) {
+      throw Exception('Failed to mark complete');
+    }
   }
 
   requestTimeOff() async {
@@ -87,6 +95,9 @@ class _ViewScheduleScreen extends State<ViewScheduleScreen> {
           'taskStatus': 'requestTimeOff',
         });
 
+    if (response.statusCode != 200) {
+      throw Exception('Failed to request time off');
+    }
     //print(response.body);
   }
 
@@ -103,6 +114,10 @@ class _ViewScheduleScreen extends State<ViewScheduleScreen> {
           'id': widget.event.id.toString(),
           'taskStatus': confirm,
         });
+
+    if (response.statusCode != 200) {
+      throw Exception('Failed to confirm time off');
+    }
   }
 
   @override
@@ -270,8 +285,28 @@ class _ViewScheduleScreen extends State<ViewScheduleScreen> {
                         ),
                         child: const Text('Delete Schedule'),
                         onPressed: () {
-                          deleteSchedule();
-                          Navigator.of(context).pop();
+                          showDialog<String>(
+                            context: context,
+                            builder: (BuildContext context) => AlertDialog(
+                                title: const Text('DELETE SCHEDULE'),
+                                content: const Text(
+                                    'Are you sure you want to delete this schedule. This action cannot be undone!'),
+                                actions: <Widget>[
+                                  TextButton(
+                                    onPressed: () =>
+                                        Navigator.pop(context, 'CANCEL'),
+                                    child: const Text('CANCEL'),
+                                  ),
+                                  TextButton(
+                                    onPressed: () {
+                                      deleteSchedule();
+                                      Navigator.pop(context, 'OK');
+                                      Navigator.of(context).pop();
+                                    },
+                                    child: const Text('OK'),
+                                  ),
+                                ]),
+                          );
                         }),
                   ),
                 ),

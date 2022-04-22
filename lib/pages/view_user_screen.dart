@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:wetra_app/custom_classes/api_const.dart';
 import 'package:wetra_app/custom_classes/group.dart';
+import 'package:wetra_app/custom_classes/login_register_popup.dart';
 import 'package:wetra_app/custom_classes/login_user.dart';
 import 'package:http/http.dart' as http;
 import 'package:wetra_app/custom_classes/user.dart';
@@ -74,7 +75,8 @@ class _ViewUserScreenState extends State<ViewUserScreen> {
 
   void updateSettings() async {
     String token = User.getUser().token;
-    await http.put(Uri.parse(ApiConst.api + 'users/${widget.user.id}'),
+    final response = await http.put(
+        Uri.parse(ApiConst.api + 'users/${widget.user.id}'),
         headers: <String, String>{
           'Accept': 'application/json',
           'Content-Type': 'application/x-www-form-urlencoded',
@@ -85,6 +87,15 @@ class _ViewUserScreenState extends State<ViewUserScreen> {
           'status': statusDropdownValue == 'Inactive' ? '0' : '1',
           'job_title': jTitleController.text,
         });
+
+    if (response.statusCode != 200) {
+      OtherPopups.createPopup(context, 'Error',
+          'There was an error updating the users settings please try again later');
+      throw Exception('Failed to update settings');
+    } else {
+      OtherPopups.createPopup(context, 'Users Settings Updated',
+          'The users settings have been updated successfully');
+    }
   }
 
   @override

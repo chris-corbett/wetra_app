@@ -6,6 +6,7 @@ import 'package:intl/intl.dart' as intl;
 import 'package:http/http.dart' as http;
 import 'package:wetra_app/custom_classes/api_const.dart';
 import 'package:wetra_app/custom_classes/group.dart';
+import 'package:wetra_app/custom_classes/login_register_popup.dart';
 import 'package:wetra_app/custom_classes/login_user.dart';
 import 'package:wetra_app/custom_classes/user.dart';
 
@@ -138,6 +139,15 @@ class _CreateEventScreenState extends State<CreateEventScreen> {
       'assigned_by': User.getUser().user.id.toString(),
       'is_group': shareIsChecked ? '1' : '0',
     });
+
+    if (response.statusCode != 200) {
+      OtherPopups.createPopup(context, 'Error',
+          'There was an error creating the schedule please try again later');
+      throw Exception('Failed to create event');
+    } else {
+      OtherPopups.createPopup(context, 'Schedule Created',
+          'The schedule has been created successfully');
+    }
   }
 
   @override

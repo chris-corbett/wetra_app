@@ -33,6 +33,12 @@ class _FileScreenState extends State<FileScreen> {
   bool isAdmin = User.getUser().user.isAdmin == 0 ? false : true;
 
   @override
+  initState() {
+    setState(() {});
+    super.initState();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
         appBar: AppBar(

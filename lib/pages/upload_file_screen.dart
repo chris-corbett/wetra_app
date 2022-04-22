@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:wetra_app/custom_classes/api_const.dart';
 import 'package:wetra_app/custom_classes/group.dart';
+import 'package:wetra_app/custom_classes/login_register_popup.dart';
 import 'package:wetra_app/custom_classes/login_user.dart';
 import 'package:wetra_app/custom_classes/user.dart';
 
@@ -74,7 +75,10 @@ class _UploadFileScreenState extends State<UploadFileScreen> {
     var formData = FormData.fromMap({
       'file': await MultipartFile.fromFile(chosenFile.path,
           filename: chosenFile.uri.pathSegments.last),
-      'shared_to': '0',
+      'shared_to': shareIsChecked
+          ? groupDropdownValue.id.toString()
+          : userDropdownValue.id.toString(),
+      'is_group': shareIsChecked ? '1' : '0',
     });
 
     final response =
@@ -91,6 +95,15 @@ class _UploadFileScreenState extends State<UploadFileScreen> {
                   return status! < 500;
                 }),
             data: formData);
+
+    if (response.statusCode != 200) {
+      OtherPopups.createPopup(context, 'Error Uploading File',
+          'There was an error uploading the file please try again later');
+      throw Exception('Failed to upload file');
+    } else {
+      OtherPopups.createPopup(
+          context, 'File Uploaded', 'The file has been uploaded successfully');
+    }
   }
 
   Future<List<Group>> getGroups() async {

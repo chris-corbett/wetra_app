@@ -49,8 +49,6 @@ class ChatDetailScreen extends StatelessWidget {
 
     if (response.statusCode != 200) {
       throw Exception('Failed to send messages');
-    } else {
-      print(response.body);
     }
   }
 

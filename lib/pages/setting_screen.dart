@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:wetra_app/Authentication_pages/login_screen.dart';
 import 'package:wetra_app/custom_classes/api_const.dart';
 import 'package:wetra_app/custom_classes/group.dart';
+import 'package:wetra_app/custom_classes/login_register_popup.dart';
 import 'package:wetra_app/custom_classes/login_user.dart';
 import 'package:wetra_app/custom_classes/user.dart';
 import 'package:wetra_app/pages/users_screen.dart';
@@ -72,7 +73,8 @@ class _SettingScreenState extends State<SettingScreen> {
 
   void updateSettings() async {
     String token = User.getUser().token;
-    await http.put(Uri.parse(ApiConst.api + 'users/${User.getUser().user.id}'),
+    final response = await http.put(
+        Uri.parse(ApiConst.api + 'users/${User.getUser().user.id}'),
         headers: <String, String>{
           'Accept': 'application/json',
           'Content-Type': 'application/x-www-form-urlencoded',
@@ -87,6 +89,15 @@ class _SettingScreenState extends State<SettingScreen> {
           'emergency_name': eContactNameController.text,
           'emergency_phone': eContactPhoneController.text,
         });
+
+    if (response.statusCode != 200) {
+      OtherPopups.createPopup(context, 'Error',
+          'There was an error updating the settings please try again later');
+      throw Exception('Failed to update settings');
+    } else {
+      OtherPopups.createPopup(
+          context, 'Settings Updated', 'Settings updated successfully');
+    }
   }
 
   @override
