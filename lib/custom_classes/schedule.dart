@@ -28,6 +28,7 @@ class Schedule {
   final String createdAt;
   final String updatedAt;
   final int? allDay;
+  final int? isGroup;
 
   const Schedule(
       {required this.id,
@@ -45,7 +46,8 @@ class Schedule {
       this.confirmTimeOffId,
       required this.createdAt,
       required this.updatedAt,
-      this.allDay});
+      this.allDay,
+      this.isGroup});
 
   factory Schedule.fromJson(Map<String, dynamic> json) {
     return Schedule(
@@ -64,6 +66,7 @@ class Schedule {
         confirmTimeOffId: json['confirm_time_off_id'],
         createdAt: json['created_at'],
         updatedAt: json['updated_at'],
-        allDay: json['allDay']);
+        allDay: json['allDay'],
+        isGroup: json['is_group']);
   }
 }

@@ -1,5 +1,10 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:wetra_app/Authentication_pages/login_screen.dart';
+import 'package:wetra_app/custom_classes/api_const.dart';
+import 'package:wetra_app/custom_classes/group.dart';
+import 'package:wetra_app/custom_classes/login_register_popup.dart';
 import 'package:wetra_app/custom_classes/login_user.dart';
 import 'package:wetra_app/custom_classes/user.dart';
 import 'package:wetra_app/pages/users_screen.dart';
@@ -27,13 +32,13 @@ class _SettingScreenState extends State<SettingScreen> {
 
   @override
   void initState() {
+    // Initialize the text fields with the information for the user
     fNameController.text = user.firstName;
     lNameController.text = user.lastName;
     pNumberController.text = user.phoneNumber != null ? user.phoneNumber! : '';
     addressController.text = user.address != null ? user.address! : '';
     emailController.text = user.email;
     jTitleController.text = user.jobTitle != null ? user.jobTitle! : '';
-    //groupController.text = user.groupId
     eContactNameController.text =
         user.emergencyName != null ? user.emergencyName! : '';
     eContactPhoneController.text =
@@ -45,16 +50,54 @@ class _SettingScreenState extends State<SettingScreen> {
   void dispose() {
     fNameController.dispose();
     lNameController.dispose();
+    pNumberController.dispose();
+    addressController.dispose();
+    emailController.dispose();
+    jTitleController.dispose();
+    groupController.dispose();
+    eContactNameController.dispose();
+    eContactPhoneController.dispose();
     super.dispose();
   }
 
-  getGroups() async {
+  Future<List<Group>> getGroups() async {
     String token = User.getUser().token;
-    await http.get(Uri.parse('https://wyibulayin.scweb.ca/wetra/api/groups'),
+    final response = await http
+        .get(Uri.parse(ApiConst.api + 'groups'), headers: <String, String>{
+      'Accept': 'application/json',
+      'Authorization': 'Bearer $token',
+    });
+
+    return FullGroup.fromJson(jsonDecode(response.body)).groups;
+  }
+
+  void updateSettings() async {
+    String token = User.getUser().token;
+    final response = await http.put(
+        Uri.parse(ApiConst.api + 'users/${User.getUser().user.id}'),
         headers: <String, String>{
           'Accept': 'application/json',
+          'Content-Type': 'application/x-www-form-urlencoded',
           'Authorization': 'Bearer $token',
+        },
+        body: {
+          'first_name': fNameController.text,
+          'last_name': lNameController.text,
+          'phone_number': pNumberController.text,
+          'address': addressController.text,
+          'email': emailController.text,
+          'emergency_name': eContactNameController.text,
+          'emergency_phone': eContactPhoneController.text,
         });
+
+    if (response.statusCode != 200) {
+      OtherPopups.createPopup(context, 'Error',
+          'There was an error updating the settings please try again later');
+      throw Exception('Failed to update settings');
+    } else {
+      OtherPopups.createPopup(
+          context, 'Settings Updated', 'Settings updated successfully');
+    }
   }
 
   @override
@@ -71,6 +114,38 @@ class _SettingScreenState extends State<SettingScreen> {
         child: SingleChildScrollView(
             child: Column(
           children: [
+            Padding(
+              padding: const EdgeInsets.all(16),
+              child: ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                  minimumSize: const Size.fromHeight(40),
+                ),
+                child: const Text('Logout'),
+                onPressed: () {
+                  Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) => const LoginScreen()));
+                },
+              ),
+            ),
+            Visibility(
+              child: Padding(
+                padding: const EdgeInsets.all(16),
+                child: ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                      minimumSize: const Size.fromHeight(40),
+                    ),
+                    child: const Text('Users'),
+                    onPressed: () {
+                      Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) => const UsersScreen()));
+                    }),
+              ),
+              visible: User.getUser().user.isAdmin == 0 ? false : true,
+            ),
             Padding(
               padding: const EdgeInsets.all(16),
               child: TextFormField(
@@ -134,16 +209,41 @@ class _SettingScreenState extends State<SettingScreen> {
               ),
             ),
             Padding(
-              padding: const EdgeInsets.all(16),
-              child: TextFormField(
-                enabled: false,
-                controller: groupController,
-                decoration: const InputDecoration(
-                  hintText: 'Group',
-                  labelText: 'Group',
-                ),
-              ),
-            ),
+                padding: const EdgeInsets.all(16),
+                child: FutureBuilder<List<Group>>(
+                  future: getGroups(),
+                  builder: (context, snapshot) {
+                    if (snapshot.connectionState == ConnectionState.waiting) {
+                      return const Center(child: Text('Loading groups'));
+                    } else {
+                      if (snapshot.hasError) {
+                        return const Center(
+                            child: Text('Error loading groups'));
+                      } else {
+                        groupController.text =
+                            user.groupId != 0 && user.groupId != null
+                                ? snapshot.data!
+                                    .firstWhere(
+                                        (element) => element.id == user.groupId,
+                                        orElse: () => const Group(
+                                            id: 0,
+                                            name: 'No Group',
+                                            createdAt: '',
+                                            updatadAt: ''))
+                                    .name
+                                : '';
+                        return TextFormField(
+                          enabled: false,
+                          controller: groupController,
+                          decoration: const InputDecoration(
+                            hintText: 'Group',
+                            labelText: 'Group',
+                          ),
+                        );
+                      }
+                    }
+                  },
+                )),
             Padding(
               padding: const EdgeInsets.all(16),
               child: TextFormField(
@@ -164,25 +264,17 @@ class _SettingScreenState extends State<SettingScreen> {
                 ),
               ),
             ),
-            Visibility(
+            Padding(
+              padding: const EdgeInsets.all(16),
               child: ElevatedButton(
-                  child: const Text('Users'),
-                  onPressed: () {
-                    Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                            builder: (context) => const UsersScreen()));
-                  }),
-              visible: User.getUser().user.isAdmin == 0 ? false : true,
-            ),
-            ElevatedButton(
-              child: const Text('Logout'),
-              onPressed: () {
-                Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                        builder: (context) => const LoginScreen()));
-              },
+                style: ElevatedButton.styleFrom(
+                  minimumSize: const Size.fromHeight(40),
+                ),
+                child: const Text('Update Settings'),
+                onPressed: () {
+                  updateSettings();
+                },
+              ),
             ),
           ],
         )),

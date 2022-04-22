@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
+import 'package:wetra_app/custom_classes/api_const.dart';
 import 'package:wetra_app/custom_classes/uploaded_file.dart';
 import 'package:wetra_app/custom_classes/user.dart';
 import 'package:http/http.dart' as http;
@@ -17,7 +18,7 @@ class FileScreen extends StatefulWidget {
 Future<List<UploadedFile>> getFiles() async {
   String token = User.getUser().token;
   final response = await http.get(
-    Uri.parse('https://wyibulayin.scweb.ca/wetra/api/files'),
+    Uri.parse(ApiConst.api + 'files'),
     headers: <String, String>{
       'Accept': 'application/json',
       'Authorization': 'Bearer $token',
@@ -30,6 +31,12 @@ Future<List<UploadedFile>> getFiles() async {
 
 class _FileScreenState extends State<FileScreen> {
   bool isAdmin = User.getUser().user.isAdmin == 0 ? false : true;
+
+  @override
+  initState() {
+    setState(() {});
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -56,7 +63,19 @@ class _FileScreenState extends State<FileScreen> {
           future: getFiles(),
           builder: (context, snapshot) {
             if (snapshot.connectionState == ConnectionState.waiting) {
-              return const Center(child: Text('Loading Files'));
+              return Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: const [
+                  Padding(
+                    padding: EdgeInsets.all(16),
+                    child: CircularProgressIndicator(),
+                  ),
+                  Padding(
+                    padding: EdgeInsets.all(16),
+                    child: Center(child: Text('Loading Files')),
+                  ),
+                ],
+              );
             } else {
               if (snapshot.hasError) {
                 return const Center(child: Text('Error loading files'));
@@ -74,11 +93,12 @@ class _FileScreenState extends State<FileScreen> {
                           }));
                         },
                         child: Container(
-                            height: 50,
-                            color: Colors.white,
-                            child: Center(
-                              child: Text(snapshot.data![index].fileName),
-                            )),
+                          height: 50,
+                          color: Colors.white,
+                          child: Center(
+                            child: Text(snapshot.data![index].fileName),
+                          ),
+                        ),
                       );
                     },
                     separatorBuilder: (BuildContext context, int index) =>
